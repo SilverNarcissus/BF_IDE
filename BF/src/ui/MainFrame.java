@@ -42,7 +42,7 @@ public class MainFrame extends JFrame {
 		newMenuItem.addActionListener(new MenuItemActionListener());
 		openMenuItem.addActionListener(new LoadActionListener());
 		saveMenuItem.addActionListener(new SaveActionListener());
-		runMenuItem.addActionListener(new MenuItemActionListener());
+		runMenuItem.addActionListener(new RunActionListener());
 
 		textArea = new JTextArea();
 		textArea.setMargin(new Insets(10, 10, 10, 10));
@@ -89,6 +89,18 @@ public class MainFrame extends JFrame {
 			}
 		}
 
+	}
+	class RunActionListener implements ActionListener{
+		public void actionPerformed(ActionEvent e) {
+			String result="";
+			try{
+				result=RemoteHelper.getInstance().getExecuteService().execute(textArea.getText(),"");
+				resultLabel.setText(result);
+			}
+			catch(Exception ex){
+				ex.printStackTrace();
+			}
+		}
 	}
 	class LoadActionListener implements ActionListener {
 

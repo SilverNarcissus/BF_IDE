@@ -4,7 +4,11 @@ import java.rmi.RemoteException;
 
 import service.UserService;
 
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
+	@Override
+	public boolean creatNewUser(String username, String password) throws RemoteException {
+		return true;
+	};
 
 	@Override
 	public boolean login(String username, String password) throws RemoteException {

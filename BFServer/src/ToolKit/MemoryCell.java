@@ -1,4 +1,4 @@
-package ToolKit;
+package toolKit;
 
 public class MemoryCell {
 	private int location;

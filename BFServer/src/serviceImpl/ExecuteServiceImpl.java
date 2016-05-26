@@ -21,7 +21,7 @@ public class ExecuteServiceImpl implements ExecuteService {
 		}
 	}
 
-	ArrayList<MemoryCell> memorycells = new ArrayList<MemoryCell>();
+	ArrayList<MemoryCell> memorycells;
 	ArrayList<Integer> leftBracketsLocations;
 	ArrayList<Integer> rightBracketsLocations;
 
@@ -36,6 +36,7 @@ public class ExecuteServiceImpl implements ExecuteService {
 		int inputPointer = 0;
 		int pointer = 0;
 		int programCounter = 0;
+		memorycells=new ArrayList<MemoryCell>();
 		memorycells.add(new MemoryCell(0));
 		leftBracketsLocations = new ArrayList<Integer>();
 		rightBracketsLocations = new ArrayList<Integer>();

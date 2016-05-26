@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
 	public boolean creatNewUser(String userName, String password) throws RemoteException {
 		if (userManager.getUserInfomation(userName) == null) {
 			userManager.addUserInformation(new UserInformation(userName, password));
-			saveUserInformation();
+			saveUserInformation(userManager);
 			return true;
 		}
 		return false;
@@ -45,11 +45,12 @@ public class UserServiceImpl implements UserService {
 		return true;
 	}
 
-	private void saveUserInformation() {
+	private void saveUserInformation(UserManager userManager) {
 		try {
 			FileOutputStream fileOutputStream = new FileOutputStream("UserInformation.ser");
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-			objectOutputStream.writeObject(objectOutputStream);
+			objectOutputStream.writeObject(userManager);
+			objectOutputStream.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

@@ -75,7 +75,6 @@ public class IOServiceImpl implements IOService {
 
 	@Override
 	public String readFile(String userId, String fileName) {
-		// TODO Auto-generated method stub
 		File f = new File("Files/" + userId + "_" + fileName);
 		String result = new String();
 		String cache;
@@ -97,7 +96,6 @@ public class IOServiceImpl implements IOService {
 	public String readFileList(String userId) {
 		String result = "";
 		File dir = new File("Files/");
-		// TODO Auto-generated method stub
 		for (File file : dir.listFiles()) {
 			String[] name = file.getName().split("_");
 			if (name[0].equals(userId)) {
@@ -107,8 +105,23 @@ public class IOServiceImpl implements IOService {
 		return result;
 	}
 
+	@Override
+	public String readAllCanReadFileList(String userId) {
+		ArrayList<String> sArrayList = new ArrayList<String>();
+		String result = "";
+		File dir = new File("Files/");
+		for (File file : dir.listFiles()) {
+			String[] name = file.getName().split("_");
+			if (name[0].equals(userId) && !sArrayList.contains(name[1])) {
+				result = result + name[1] + "/";
+				sArrayList.add(name[1]);
+			}
+		}
+		return result;
+	}
+
+	// 根据完全文件名读取File
 	private String readFile(String fileName) {
-		// TODO Auto-generated method stub
 		File f = new File("Files/" + fileName);
 		String result = new String();
 		String cache;
@@ -125,6 +138,7 @@ public class IOServiceImpl implements IOService {
 		return result;
 	}
 
+	// 根据全文件名写入文件
 	private boolean writeFile(String file, String fileName) {
 		File f = new File("Files/" + fileName);
 		try {
@@ -139,6 +153,7 @@ public class IOServiceImpl implements IOService {
 		}
 	}
 
+	// 找到文件名相同的所有不同版本的文件名
 	private String findAllSameFile(String userId, String fileName) {
 		String result = "";
 		for (String cache : readFileList(userId).split("/")) {
@@ -151,21 +166,36 @@ public class IOServiceImpl implements IOService {
 
 	@Override
 	public String showVersion(String userId, String fileName) throws RemoteException {
-		// TODO Auto-generated method stub
-		String result="";
-		ArrayList<Time> times=new ArrayList<Time>();
-		String row=findAllSameFile(userId, fileName);
-		if(row.length()<2){
+		String result = "";
+		ArrayList<Time> times = new ArrayList<Time>();
+		String row = findAllSameFile(userId, fileName);
+		if (row.length() < 2) {
 			return "";
 		}
-		for(String cache:row.split("/")){
-			times.add(new Time(cache.split("_")[3]));
+		for (String cache : row.split("/")) {
+			times.add(new Time(cache.split("_")[2] + "~" + cache.split("_")[3]));
 		}
 		Collections.sort(times);
-		for(Time time:times){
+		for (Time time : times) {
 			System.out.println(time);
-			result=result+time.toString()+"/";
+			result = result + time.toString() + "/";
 		}
 		return result;
+	}
+
+	@Override
+	public String readNewestVersion(String userId, String fileName) throws RemoteException {
+		// TODO Auto-generated method stub
+		String cache = findAllSameFile(userId, fileName);
+		int max = 0;
+		String fullFileName = "";
+		for (String fullName : cache.split("/")) {
+			int temp = Integer.parseInt(fullName.split("_")[2]);
+			if (temp > max) {
+				max = temp;
+				fullFileName = fullName;
+			}
+		}
+		return readFile(fullFileName);
 	}
 }

@@ -77,4 +77,16 @@ public class DataRemoteObject extends UnicastRemoteObject implements IOService, 
 		return iOService.showVersion(userId, fileName);
 	}
 
+	@Override
+	public String readAllCanReadFileList(String userId) throws RemoteException {
+		// TODO Auto-generated method stub
+		return iOService.readAllCanReadFileList(userId);
+	}
+
+	@Override
+	public String readNewestVersion(String userId, String fileName) throws RemoteException {
+		// TODO Auto-generated method stub
+		return iOService.readNewestVersion(userId, fileName);
+	}
+
 }

@@ -9,15 +9,17 @@ public class Time implements Comparable<Time> {
 	private int hour;
 	private int minute;
 	private int second;
+	private String tag;
 
 	public Time(String time) {
 		String[] row1 = time.split("~");
-		year = Integer.parseInt(row1[0].split("-")[0]);
-		month = Integer.parseInt(row1[0].split("-")[1]);
-		day = Integer.parseInt(row1[0].split("-")[2]);
-		hour = Integer.parseInt(row1[1].split("-")[0]);
-		minute = Integer.parseInt(row1[1].split("-")[1]);
-		second = Integer.parseInt(row1[1].split("-")[2]);
+		tag=row1[0];
+		year = Integer.parseInt(row1[1].split("-")[0]);
+		month = Integer.parseInt(row1[1].split("-")[1]);
+		day = Integer.parseInt(row1[1].split("-")[2]);
+		hour = Integer.parseInt(row1[2].split("-")[0]);
+		minute = Integer.parseInt(row1[2].split("-")[1]);
+		second = Integer.parseInt(row1[2].split("-")[2]);
 	}
 
 	@Override
@@ -67,6 +69,6 @@ public class Time implements Comparable<Time> {
 	}
 	@Override
 	public String toString(){
-		return String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+"~"+String.valueOf(hour)+"-"+String.valueOf(minute)+"-"+String.valueOf(second);
+		return tag+"_"+String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+"~"+String.valueOf(hour)+"-"+String.valueOf(minute)+"-"+String.valueOf(second);
 	}
 }

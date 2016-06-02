@@ -2,6 +2,8 @@ package ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -18,13 +20,16 @@ import javax.swing.JTextArea;
 import rmi.RemoteHelper;
 
 public class CreateNewUserFrame {
-	JLabel wrongLabel;
-	JTextArea userNameArea;
-	JPasswordField passwordField1;
-	JPasswordField passwordField2;
-	JFrame frame;
+	private JLabel wrongLabel;
+	private JTextArea userNameArea;
+	private JPasswordField passwordField1;
+	private JPasswordField passwordField2;
+	private JFrame frame;
 
 	public CreateNewUserFrame() {
+		Dimension   screensize   =   Toolkit.getDefaultToolkit().getScreenSize();
+		int width = (int)screensize.getWidth();
+		int height = (int)screensize.getHeight();
 		frame = new JFrame("CreateNewUser");
 		frame.setLayout(new BorderLayout());
 		JPanel backgroundPanel = new JPanel();
@@ -73,7 +78,8 @@ public class CreateNewUserFrame {
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocation(width/2-frame.getWidth()/2,height/2-frame.getHeight()/2-50);
+		frame.pack();
 		frame.setVisible(true);
 	}
 

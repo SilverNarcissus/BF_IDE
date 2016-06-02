@@ -2,7 +2,9 @@ package ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Date;
@@ -30,6 +32,9 @@ public class NewFileNameFrame {
 	private MainFrame mainFrame;
 
 	public NewFileNameFrame(FileName fileName, String userID, MainFrame mainFrame) {
+		Dimension   screensize   =   Toolkit.getDefaultToolkit().getScreenSize();
+		int width = (int)screensize.getWidth();
+		int height = (int)screensize.getHeight();
 		this.mainFrame = mainFrame;
 		this.fileName = fileName;
 		this.userID = userID;
@@ -73,7 +78,8 @@ public class NewFileNameFrame {
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setLocation(width/2-frame.getWidth()/2,height/2-frame.getHeight()/2-50);
 		frame.setVisible(true);
 		frame.setAlwaysOnTop(true);
 	}

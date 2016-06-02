@@ -196,6 +196,6 @@ public class IOServiceImpl implements IOService {
 				fullFileName = fullName;
 			}
 		}
-		return readFile(fullFileName);
+		return fullFileName.split("_")[2]+"_"+readFile(fullFileName);
 	}
 }

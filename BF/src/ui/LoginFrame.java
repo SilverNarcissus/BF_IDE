@@ -14,6 +14,11 @@ public class LoginFrame {
 	JLabel warningLabel;
 
 	public LoginFrame() {
+		Dimension   screensize   =   Toolkit.getDefaultToolkit().getScreenSize();
+		int width = (int)screensize.getWidth();
+		int height = (int)screensize.getHeight();
+		System.out.println(width);
+		System.out.println(height);
 		frame = new JFrame("Login");
 		frame.setLayout(new BorderLayout());
 		JPanel backgroundPanel = new JPanel();
@@ -55,7 +60,7 @@ public class LoginFrame {
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocation(width/2-frame.getWidth()/2,height/2-frame.getHeight()/2-50);
 		frame.setVisible(true);
 
 	}

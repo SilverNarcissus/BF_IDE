@@ -14,4 +14,8 @@ public interface IOService extends Remote {
 	public String readFileList(String userId) throws RemoteException;
 
 	public String showVersion(String userId, String fileName) throws RemoteException;
+
+	public String readAllCanReadFileList(String userId) throws RemoteException;
+
+	public String readNewestVersion(String userId, String fileName) throws RemoteException;
 }

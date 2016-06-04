@@ -13,7 +13,6 @@ import java.awt.event.KeyListener;
 import java.rmi.RemoteException;
 import java.util.Stack;
 
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,6 +21,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
@@ -46,11 +46,23 @@ public class MainFrame extends JFrame {
 	private boolean revoke=false;
 	private boolean redo=false;
 	private boolean newFlag=false;
+	private int width;
+	private int height;
+	private JSplitPane outerPanel;
+	private JSplitPane innerPanel;
 
 	public MainFrame(String userName) {
+		outerPanel=new JSplitPane(JSplitPane.VERTICAL_SPLIT,true);
+		innerPanel=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		outerPanel.setBottomComponent(innerPanel);
+		outerPanel.setDividerLocation(300);
+		outerPanel.setDividerSize(2);
+		innerPanel.setDividerLocation(335);
+		innerPanel.setDividerSize(1);
+		//
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = (int) screensize.getWidth();
-		int height = (int) screensize.getHeight();
+		width = (int) screensize.getWidth();
+		height = (int) screensize.getHeight();
 		this.userName = userName;
 		// 创建窗体
 		frame = new JFrame("BF Client");
@@ -60,9 +72,11 @@ public class MainFrame extends JFrame {
 		JMenu fileMenu = new JMenu("File");
 		JMenu versionMenu = new JMenu("Version");
 		JMenu codeMenu=new JMenu("Code");
+		JMenu windowMenu=new JMenu("Window");
 		menuBar.add(fileMenu);
 		menuBar.add(versionMenu);
 		menuBar.add(codeMenu);
+		menuBar.add(windowMenu);
 		JMenuItem newMenuItem = new JMenuItem("New");
 		fileMenu.add(newMenuItem);
 		JMenuItem openMenuItem = new JMenuItem("Open");
@@ -77,6 +91,8 @@ public class MainFrame extends JFrame {
 		codeMenu.add(revokeMenuItem);
 		JMenuItem  redoMenuItem = new JMenuItem("Redo");
 		codeMenu.add(redoMenuItem);
+		JMenuItem  initializationMenuItem = new JMenuItem("Initialize");
+		windowMenu.add(initializationMenuItem);
 
 		frame.setJMenuBar(menuBar);
 
@@ -87,6 +103,7 @@ public class MainFrame extends JFrame {
 		showVersionMenuItem.addActionListener(new MenuItemActionListener());
 		revokeMenuItem.addActionListener(new MenuItemActionListener());
 		redoMenuItem.addActionListener(new MenuItemActionListener());
+		initializationMenuItem.addActionListener(new MenuItemActionListener());
 
 		codeTextArea = new JTextArea();
 		JScrollPane scrollPane = new JScrollPane(codeTextArea);
@@ -96,20 +113,25 @@ public class MainFrame extends JFrame {
 		codeTextArea.setBackground(Color.LIGHT_GRAY);
 		codeTextArea.setEditable(false);
 		codeTextArea.addKeyListener(new RevokeListener());
-		frame.add(scrollPane, BorderLayout.CENTER);
+		outerPanel.setTopComponent(scrollPane);
+		
+		//frame.add(scrollPane, BorderLayout.CENTER);
 		// 生成输入输出面板
-		JPanel IOPanel = new JPanel();
-		IOPanel.setLayout(new BorderLayout());
-		IOPanel.setBackground(Color.white);
+		//JPanel IOPanel = new JPanel();
+		//IOPanel.setLayout(new BorderLayout());
+		//IOPanel.setBackground(Color.white);
 		inputTextArea = new JTextArea(3, 10);
-		inputTextArea.setBorder(new LineBorder(Color.green));
 		inputTextArea.setMargin(new Insets(10, 10, 10, 10));
 		// inputTextArea.addKeyListener(new RevokeListener());
 		outputResult = new JLabel();
 		JPanel inputPanel = new JPanel();
 		inputPanel.setLayout(new BorderLayout());
+		inputPanel.setForeground(Color.WHITE);
+		inputPanel.setBackground(Color.WHITE);
 		JPanel outputPanel = new JPanel();
 		outputPanel.setLayout(new BorderLayout());
+		outputPanel.setBackground(Color.WHITE);
+		outputPanel.setForeground(Color.WHITE);
 		// 设置边框
 		TitledBorder tBorder1 = (BorderFactory.createTitledBorder("Input"));
 		tBorder1.setTitleFont(new Font("Monaco", Font.PLAIN, 15));
@@ -122,13 +144,12 @@ public class MainFrame extends JFrame {
 		outputPanel.setBorder(tBorder2);
 		inputPanel.add(inputTextArea, BorderLayout.CENTER);
 		outputPanel.add(outputResult, BorderLayout.CENTER);
-		IOPanel.add(inputPanel, BorderLayout.WEST);
-		IOPanel.add(outputPanel, BorderLayout.CENTER);
+		innerPanel.setLeftComponent(inputPanel);
+		innerPanel.setRightComponent(outputPanel);
 		// 显示结果
-		frame.add(IOPanel, BorderLayout.SOUTH);
-
+		frame.getContentPane().add(outerPanel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(500, 400);
+		frame.setSize(700, 500);
 		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
 	}
@@ -207,6 +228,13 @@ public class MainFrame extends JFrame {
 				codeTextArea.setText(temp2);
 				revokeStack.push(temp2);
 				}
+				break;
+			case "Initialize":
+				System.out.println("!!!");
+				frame.setSize(700, 500);
+				frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
+				outerPanel.setDividerLocation(300);
+				innerPanel.setDividerLocation(335);
 				break;
 			default:
 				break;

@@ -14,13 +14,29 @@ import org.omg.CORBA.PRIVATE_MEMBER;
 
 import javafx.print.Collation;
 import service.IOService;
-import toolKit.Time;
+import serviceToolKit.Time;
 
 public class IOServiceImpl implements IOService {
 
 	@Override
 	public boolean writeFile(String file, String userId, String fileName) {
 		File f = new File("Files/" + userId + "_" + fileName);
+		try {
+			FileWriter fw = new FileWriter(f, false);
+			//
+			fw.write(file);
+			fw.flush();
+			fw.close();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 根据全文件名写入文件
+	private boolean writeFile(String file, String fileName) {
+		File f = new File("Files/" + fileName);
 		try {
 			FileWriter fw = new FileWriter(f, false);
 			fw.write(file);
@@ -73,6 +89,24 @@ public class IOServiceImpl implements IOService {
 		return true;
 	}
 
+	// 根据完全文件名读取File
+	private String readFile(String fileName) {
+		File f = new File("Files/" + fileName);
+		String result = new String();
+		String cache;
+		try {
+			FileReader fileReader = new FileReader(f);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			while ((cache = bufferedReader.readLine()) != null) {
+				result = result.concat(cache);
+			}
+			bufferedReader.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return result;
+	}
+
 	@Override
 	public String readFile(String userId, String fileName) {
 		File f = new File("Files/" + userId + "_" + fileName);
@@ -120,50 +154,6 @@ public class IOServiceImpl implements IOService {
 		return result;
 	}
 
-	// 根据完全文件名读取File
-	private String readFile(String fileName) {
-		File f = new File("Files/" + fileName);
-		String result = new String();
-		String cache;
-		try {
-			FileReader fileReader = new FileReader(f);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			while ((cache = bufferedReader.readLine()) != null) {
-				result = result.concat(cache);
-			}
-			bufferedReader.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return result;
-	}
-
-	// 根据全文件名写入文件
-	private boolean writeFile(String file, String fileName) {
-		File f = new File("Files/" + fileName);
-		try {
-			FileWriter fw = new FileWriter(f, false);
-			fw.write(file);
-			fw.flush();
-			fw.close();
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	// 找到文件名相同的所有不同版本的文件名
-	private String findAllSameFile(String userId, String fileName) {
-		String result = "";
-		for (String cache : readFileList(userId).split("/")) {
-			if (cache.split("_")[1].equals(fileName)) {
-				result = result + cache + "/";
-			}
-		}
-		return result;
-	}
-
 	@Override
 	public String showVersion(String userId, String fileName) throws RemoteException {
 		String result = "";
@@ -179,6 +169,17 @@ public class IOServiceImpl implements IOService {
 		for (Time time : times) {
 			System.out.println(time);
 			result = result + time.toString() + "/";
+		}
+		return result;
+	}
+
+	// 找到文件名相同的所有不同版本的文件名
+	private String findAllSameFile(String userId, String fileName) {
+		String result = "";
+		for (String cache : readFileList(userId).split("/")) {
+			if (cache.split("_")[1].equals(fileName)) {
+				result = result + cache + "/";
+			}
 		}
 		return result;
 	}

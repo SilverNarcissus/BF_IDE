@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
@@ -27,12 +28,13 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import rmi.RemoteHelper;
-import toolKit.FileName;
+import toolKit.*;
 
 public class MainFrame extends JFrame {
 	/**
 	 * 
 	 */
+	private ArrayList<MemoryCell> memorycells;
 	private static final long serialVersionUID = 1L;
 	private JTextArea codeTextArea;
 	private JTextArea inputTextArea;
@@ -43,17 +45,17 @@ public class MainFrame extends JFrame {
 	private JFrame frame;
 	private Stack<String> revokeStack = new Stack<String>();
 	private Stack<String> redoStack = new Stack<String>();
-	private boolean revoke=false;
-	private boolean redo=false;
-	private boolean newFlag=false;
+	private boolean revoke = false;
+	private boolean redo = false;
+	private boolean newFlag = false;
 	private int width;
 	private int height;
 	private JSplitPane outerPanel;
 	private JSplitPane innerPanel;
 
 	public MainFrame(String userName) {
-		outerPanel=new JSplitPane(JSplitPane.VERTICAL_SPLIT,true);
-		innerPanel=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		outerPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+		innerPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		outerPanel.setBottomComponent(innerPanel);
 		outerPanel.setDividerLocation(300);
 		outerPanel.setDividerSize(2);
@@ -71,8 +73,8 @@ public class MainFrame extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
 		JMenu versionMenu = new JMenu("Version");
-		JMenu codeMenu=new JMenu("Code");
-		JMenu windowMenu=new JMenu("Window");
+		JMenu codeMenu = new JMenu("Code");
+		JMenu windowMenu = new JMenu("Window");
 		menuBar.add(fileMenu);
 		menuBar.add(versionMenu);
 		menuBar.add(codeMenu);
@@ -87,11 +89,11 @@ public class MainFrame extends JFrame {
 		fileMenu.add(runMenuItem);
 		JMenuItem showVersionMenuItem = new JMenuItem("Version");
 		versionMenu.add(showVersionMenuItem);
-		JMenuItem  revokeMenuItem = new JMenuItem("Revoke");
+		JMenuItem revokeMenuItem = new JMenuItem("Revoke");
 		codeMenu.add(revokeMenuItem);
-		JMenuItem  redoMenuItem = new JMenuItem("Redo");
+		JMenuItem redoMenuItem = new JMenuItem("Redo");
 		codeMenu.add(redoMenuItem);
-		JMenuItem  initializationMenuItem = new JMenuItem("Initialize");
+		JMenuItem initializationMenuItem = new JMenuItem("Initialize");
 		windowMenu.add(initializationMenuItem);
 
 		frame.setJMenuBar(menuBar);
@@ -114,12 +116,12 @@ public class MainFrame extends JFrame {
 		codeTextArea.setEditable(false);
 		codeTextArea.addKeyListener(new RevokeListener());
 		outerPanel.setTopComponent(scrollPane);
-		
-		//frame.add(scrollPane, BorderLayout.CENTER);
+
+		// frame.add(scrollPane, BorderLayout.CENTER);
 		// 生成输入输出面板
-		//JPanel IOPanel = new JPanel();
-		//IOPanel.setLayout(new BorderLayout());
-		//IOPanel.setBackground(Color.white);
+		// JPanel IOPanel = new JPanel();
+		// IOPanel.setLayout(new BorderLayout());
+		// IOPanel.setBackground(Color.white);
 		inputTextArea = new JTextArea(3, 10);
 		inputTextArea.setMargin(new Insets(10, 10, 10, 10));
 		// inputTextArea.addKeyListener(new RevokeListener());
@@ -163,8 +165,8 @@ public class MainFrame extends JFrame {
 			String cmd = e.getActionCommand();
 			switch (cmd) {
 			case "New":
-				revokeStack=new Stack<String>();
-				redoStack=new Stack<String>();
+				revokeStack = new Stack<String>();
+				redoStack = new Stack<String>();
 				new NewFileNameFrame(fileName, userName, mainFrame);
 				codeTextArea.setText("");
 				revokeStack.push(codeTextArea.getText());
@@ -178,10 +180,10 @@ public class MainFrame extends JFrame {
 				}
 				break;
 			case "Open":
-				revokeStack=new Stack<String>();
-				redoStack=new Stack<String>();
+				revokeStack = new Stack<String>();
+				redoStack = new Stack<String>();
 				new OpenFrame(fileName, userName, codeTextArea, frame);
-				newFlag=true;
+				newFlag = true;
 				// try {
 				// RemoteHelper.getInstance().getIOService().showVersion(userName,
 				// "123");
@@ -200,33 +202,33 @@ public class MainFrame extends JFrame {
 				}
 				break;
 			case "Version":
-				revokeStack=new Stack<String>();
-				redoStack=new Stack<String>();
+				revokeStack = new Stack<String>();
+				redoStack = new Stack<String>();
 				new ShowVersionFrame(fileName, userName, codeTextArea, frame);
-				newFlag=true;
+				newFlag = true;
 				break;
 			case "Revoke":
-				if(!((revokeStack.size()==1&&!revoke)||revokeStack.empty())){
-				redo=false;
-				if(!revoke){
-					redoStack.push(revokeStack.pop());
-					revoke=true;
-				}
-				String temp1=revokeStack.pop();
-				codeTextArea.setText(temp1);
-				redoStack.push(temp1);
+				if (!((revokeStack.size() == 1 && !revoke) || revokeStack.empty())) {
+					redo = false;
+					if (!revoke) {
+						redoStack.push(revokeStack.pop());
+						revoke = true;
+					}
+					String temp1 = revokeStack.pop();
+					codeTextArea.setText(temp1);
+					redoStack.push(temp1);
 				}
 				break;
 			case "Redo":
-				if(!((redoStack.size()==1&&!redo)||redoStack.empty())){
-				revoke=false;
-				if(!redo){
-					revokeStack.push(redoStack.pop());
-					redo=true;
-				}
-				String temp2=redoStack.pop();
-				codeTextArea.setText(temp2);
-				revokeStack.push(temp2);
+				if (!((redoStack.size() == 1 && !redo) || redoStack.empty())) {
+					revoke = false;
+					if (!redo) {
+						revokeStack.push(redoStack.pop());
+						redo = true;
+					}
+					String temp2 = redoStack.pop();
+					codeTextArea.setText(temp2);
+					revokeStack.push(temp2);
 				}
 				break;
 			case "Initialize":
@@ -261,18 +263,107 @@ public class MainFrame extends JFrame {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			// TODO Auto-generated method stub
-			if(newFlag){
+			if (newFlag) {
 				revokeStack.push(codeTextArea.getText());
-				newFlag=false;
+				newFlag = false;
 			}
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
 			// TODO Auto-generated method stub
-			revoke=false;
+			revoke = false;
 			revokeStack.push(codeTextArea.getText());
 			System.out.println(codeTextArea.getText());
 		}
+	}
+
+	// 实时编译策略
+	private String execute(String code, String param) throws RemoteException {
+		// TODO Auto-generated method stub
+		String out = "";
+		int inputPointer = 0;
+		int pointer = 0;
+		int programCounter = 0;
+		memorycells = new ArrayList<MemoryCell>();
+		memorycells.add(new MemoryCell(0));
+		while (programCounter < code.length()) {
+			char command = code.charAt(programCounter);
+			switch (command) {
+			case '+':
+				memorycells.get(pointer).add();
+				programCounter++;
+				break;
+			case '-':
+				memorycells.get(pointer).sub();
+				programCounter++;
+				break;
+			case '>':
+				pointer++;
+				if (pointer > memorycells.size() - 1) {
+					memorycells.add(new MemoryCell(pointer));
+				}
+				programCounter++;
+				break;
+			case '<':
+				pointer--;
+				if (pointer < 0) {
+					System.out.println("运行错误：指针移动到了不存在的内存空间！");
+				}
+				programCounter++;
+				break;
+			case ',':
+				if (inputPointer >= param.length()) {
+					System.out.println("未输入足够的参数！");
+				}
+				memorycells.get(pointer).setValue((int) param.charAt(inputPointer));
+				inputPointer++;
+				programCounter++;
+				break;
+			case '.':
+				out = out + memorycells.get(pointer).getValueInChar();
+				programCounter++;
+				break;
+			case '[':
+				if (memorycells.get(pointer).getValue() == 0) {
+					programCounter = rightShift(programCounter, code) + 1;
+				} else {
+					programCounter++;
+				}
+				break;
+			case ']':
+				if (memorycells.get(pointer).getValue() != 0) {
+					programCounter = liftShift(programCounter, code) + 1;
+				} else {
+					programCounter++;
+				}
+				break;
+			default:
+				System.out.println("Ignore charcter");
+				programCounter++;
+				break;
+			}
+		}
+		return out;
+	}
+
+	private int rightShift(int programCounter, String code) {
+		for (int i = programCounter; i < code.length(); i++) {
+			if (code.charAt(i) == ']') {
+				return i;
+			}
+		}
+		System.out.println("找不到对应的“]”");
+		return -1;
+	}
+
+	private int liftShift(int programCounter, String code) {
+		for (int i = programCounter; i >= 0; i--) {
+			if (code.charAt(i) == '[') {
+				return i;
+			}
+		}
+		System.out.println("找不到对应的“[”");
+		return -1;
 	}
 }

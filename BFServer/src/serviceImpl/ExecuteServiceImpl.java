@@ -6,15 +6,16 @@ import java.util.ArrayList;
 
 import service.ExecuteService;
 import service.UserService;
-import toolKit.MemoryCell;
+import serviceToolKit.MemoryCell;
 
 public class ExecuteServiceImpl implements ExecuteService {
 	public static void main(String[] args) {
 		ExecuteServiceImpl executeServiceImpl = new ExecuteServiceImpl();
 		try {
-			String result=executeServiceImpl.execute(
-					"++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<++++++++++++ +++.>.+++.------.--------.>+.>.",
-					"");
+			String result=executeServiceImpl.execute(",>,,>++++++++[<------<------>>-]<<[>[>+>+<<-]>>[<<+>>-]<<<-]>>>++++++[<++++++++>-]<.", "2*4");
+//			String result=executeServiceImpl.execute(
+//					"++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<++++++++++++ +++.>.+++.------.--------.>+.>.",
+//					"");
 			System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -97,9 +98,17 @@ public class ExecuteServiceImpl implements ExecuteService {
 
 
 	private int rightShift(int programCounter,String code) {
-		for(int i=programCounter;i<code.length();i++){
-			if(code.charAt(i)==']'){
+		int count=0;
+		for(int i=programCounter+1;i<code.length();i++){
+			if(code.charAt(i)=='['){
+				count++;
+				continue;
+			}
+			if(code.charAt(i)==']'&&count==0){
 				return i;
+			}
+			else if(code.charAt(i)==']'){
+				count--;
 			}
 		}
 		System.out.println("找不到对应的“]”");
@@ -107,9 +116,17 @@ public class ExecuteServiceImpl implements ExecuteService {
 	}
 
 	private int liftShift(int programCounter,String code) {
-		for(int i=programCounter;i>=0;i--){
-			if(code.charAt(i)=='['){
+		int count=0;
+		for(int i=programCounter-1;i>=0;i--){
+			if(code.charAt(i)==']'){
+				count++;
+				continue;
+			}
+			if(code.charAt(i)=='['&&count==0){
 				return i;
+			}
+			else if(code.charAt(i)=='['){
+				count--;
 			}
 		}
 		System.out.println("找不到对应的“[”");

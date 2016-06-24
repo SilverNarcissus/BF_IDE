@@ -7,8 +7,8 @@ import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 
 import service.UserService;
-import toolKit.UserInformation;
-import toolKit.UserManager;
+import serviceToolKit.UserInformation;
+import serviceToolKit.UserManager;
 
 public class UserServiceImpl implements UserService {
 	UserManager userManager;

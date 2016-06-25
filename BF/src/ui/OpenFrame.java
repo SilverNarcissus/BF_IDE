@@ -20,12 +20,14 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import rmi.RemoteHelper;
+import service.IOService;
+import serviceToolKit.ReadFileInNewestVersion;
+import serviceToolKit.ReadFileListInOnlyFileName;
 import toolKit.FileName;
 
 public class OpenFrame {
@@ -58,7 +60,9 @@ public class OpenFrame {
 		// 设置JList
 		ArrayList<String> fileListNames = new ArrayList<String>();
 		try {
-			String row = RemoteHelper.getInstance().getIOService().readAllCanReadFileList(userID);
+			IOService ioService = RemoteHelper.getInstance().getIOService();
+			ioService.setReadFileListMethod(new ReadFileListInOnlyFileName());
+			String row = ioService.readFileList(userID, "");
 			if (row.length() != 0) {
 				for (String listName : row.split("/")) {
 					fileListNames.add(listName);
@@ -135,7 +139,9 @@ public class OpenFrame {
 			}
 			String code = "";
 			try {
-				code = RemoteHelper.getInstance().getIOService().readNewestVersion(userID, fileName);
+				IOService ioService = RemoteHelper.getInstance().getIOService();
+				ioService.setReadFileMethod(new ReadFileInNewestVersion());
+				code = ioService.readFile(userID, fileName);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

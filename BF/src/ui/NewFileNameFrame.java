@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
 import java.util.Calendar;
 
 import javax.swing.BorderFactory;
@@ -21,6 +20,8 @@ import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
 import rmi.RemoteHelper;
+import service.IOService;
+import serviceToolKit.ReadFileListInFullName;
 import toolKit.FileName;
 
 public class NewFileNameFrame {
@@ -32,9 +33,9 @@ public class NewFileNameFrame {
 	private MainFrame mainFrame;
 
 	public NewFileNameFrame(FileName fileName, String userID, MainFrame mainFrame) {
-		Dimension   screensize   =   Toolkit.getDefaultToolkit().getScreenSize();
-		int width = (int)screensize.getWidth();
-		int height = (int)screensize.getHeight();
+		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+		int width = (int) screensize.getWidth();
+		int height = (int) screensize.getHeight();
 		this.mainFrame = mainFrame;
 		this.fileName = fileName;
 		this.userID = userID;
@@ -79,7 +80,7 @@ public class NewFileNameFrame {
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
 		frame.pack();
-		frame.setLocation(width/2-frame.getWidth()/2,height/2-frame.getHeight()/2-50);
+		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
 		frame.setAlwaysOnTop(true);
 	}
@@ -90,7 +91,9 @@ public class NewFileNameFrame {
 			// 检查是否有重名文件
 			String fileNames = "";
 			try {
-				fileNames = RemoteHelper.getInstance().getIOService().readFileList(userID);
+				IOService ioService = RemoteHelper.getInstance().getIOService();
+				ioService.setReadFileListMethod(new ReadFileListInFullName());
+				fileNames = ioService.readFileList(userID, "");
 			} catch (Exception ex) {
 				// TODO: handle exception
 				ex.printStackTrace();
@@ -116,12 +119,16 @@ public class NewFileNameFrame {
 			}
 			System.out.println(fileNames);
 			fileName.setFileName(fileNameArea.getText());
-			Calendar calendar=Calendar.getInstance();
-			try{
-				String name=fileName.getFileName()+"_1_"+String.valueOf(calendar.get(Calendar.YEAR))+"-"+String.valueOf(calendar.get(Calendar.MONTH)+1)+"-"+String.valueOf(calendar.get(Calendar.DAY_OF_MONTH))+"~"+String.valueOf(calendar.get(Calendar.HOUR_OF_DAY))+"-"+String.valueOf(calendar.get(Calendar.MINUTE))+"-"+String.valueOf(calendar.get(Calendar.SECOND));
+			Calendar calendar = Calendar.getInstance();
+			try {
+				String name = fileName.getFileName() + "_1_" + String.valueOf(calendar.get(Calendar.YEAR)) + "-"
+						+ String.valueOf(calendar.get(Calendar.MONTH) + 1) + "-"
+						+ String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + "~"
+						+ String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)) + "-"
+						+ String.valueOf(calendar.get(Calendar.MINUTE)) + "-"
+						+ String.valueOf(calendar.get(Calendar.SECOND));
 				RemoteHelper.getInstance().getIOService().writeFile("", mainFrame.getUserName(), name);
-			}
-			catch(Exception ex){
+			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			mainFrame.setEnable();

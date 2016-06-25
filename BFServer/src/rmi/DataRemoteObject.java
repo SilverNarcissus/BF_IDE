@@ -9,8 +9,11 @@ import service.UserService;
 import serviceImpl.ExecuteServiceImpl;
 import serviceImpl.IOServiceImpl;
 import serviceImpl.UserServiceImpl;
+import serviceToolKit.ReadFileListMethod;
+import serviceToolKit.ReadFileMethod;
+import serviceToolKit.WriteFileMethod;
 
-public class DataRemoteObject extends UnicastRemoteObject implements IOService, UserService,ExecuteService{
+public class DataRemoteObject extends UnicastRemoteObject implements IOService, UserService, ExecuteService {
 	/**
 	 * 
 	 */
@@ -18,33 +21,29 @@ public class DataRemoteObject extends UnicastRemoteObject implements IOService, 
 	private IOService iOService;
 	private UserService userService;
 	private ExecuteServiceImpl executeServiceImpl;
+
 	protected DataRemoteObject() throws RemoteException {
 		iOService = new IOServiceImpl();
 		userService = new UserServiceImpl();
-		executeServiceImpl=new ExecuteServiceImpl();
+		executeServiceImpl = new ExecuteServiceImpl();
 	}
 
 	@Override
-	public boolean writeFile(String file, String userId, String fileName) throws RemoteException{
+	public boolean writeFile(String file, String userID, String fileName) throws RemoteException {
 		// TODO Auto-generated method stub
-		return iOService.writeFile(file, userId, fileName);
+		return iOService.writeFile(file, userID, fileName);
 	}
+
 	@Override
-	public  String execute(String code, String param) throws RemoteException{
+	public String execute(String code, String param) throws RemoteException {
 		// TODO Auto-generated method stub
 		return executeServiceImpl.execute(code, param);
 	}
 
 	@Override
-	public String readFile(String userId, String fileName) throws RemoteException{
+	public String readFile(String userID, String fileName) throws RemoteException {
 		// TODO Auto-generated method stub
-		return iOService.readFile(userId, fileName);
-	}
-
-	@Override
-	public String readFileList(String userId) throws RemoteException{
-		// TODO Auto-generated method stub
-		return iOService.readFileList(userId);
+		return iOService.readFile(userID, fileName);
 	}
 
 	@Override
@@ -66,27 +65,23 @@ public class DataRemoteObject extends UnicastRemoteObject implements IOService, 
 	}
 
 	@Override
-	public boolean saveFile(String file, String userId, String fileName) throws RemoteException {
+	public String readFileList(String userID, String fileName) throws RemoteException {
 		// TODO Auto-generated method stub
-		return iOService.saveFile(file, userId, fileName);
+		return iOService.readFileList(userID, fileName);
 	}
 
 	@Override
-	public String showVersion(String userId, String fileName) throws RemoteException {
-		// TODO Auto-generated method stub
-		return iOService.showVersion(userId, fileName);
+	public void setReadFileListMethod(ReadFileListMethod readFileListMethod) throws RemoteException {
+		iOService.setReadFileListMethod(readFileListMethod);
 	}
 
 	@Override
-	public String readAllCanReadFileList(String userId) throws RemoteException {
-		// TODO Auto-generated method stub
-		return iOService.readAllCanReadFileList(userId);
+	public void setReadFileMethod(ReadFileMethod readFileMethod) throws RemoteException {
+		iOService.setReadFileMethod(readFileMethod);
 	}
 
 	@Override
-	public String readNewestVersion(String userId, String fileName) throws RemoteException {
-		// TODO Auto-generated method stub
-		return iOService.readNewestVersion(userId, fileName);
+	public void setWriteFileMethod(WriteFileMethod writeFileMethod) throws RemoteException {
+		iOService.setWriteFileMethod(writeFileMethod);
 	}
-
 }

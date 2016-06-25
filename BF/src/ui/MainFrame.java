@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -15,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -24,16 +28,20 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import rmi.RemoteHelper;
-import toolKit.*;
+import service.IOService;
+import serviceToolKit.WriteFileInNewestVersion;
+import toolKit.FileName;
+import toolKit.MemoryCell;
 
 public class MainFrame extends JFrame {
 	/**
 	 * 
 	 */
+	private JLabel compileLabel;
+	private int pointer;
 	private ArrayList<MemoryCell> memorycells;
 	private static final long serialVersionUID = 1L;
 	private JTextArea codeTextArea;
@@ -51,15 +59,21 @@ public class MainFrame extends JFrame {
 	private int width;
 	private int height;
 	private JSplitPane outerPanel;
+	private JSplitPane visiablePanel;
 	private JSplitPane innerPanel;
+	private ArrayList<Box> boxes;
+	private JSplitPane leaderPanel;
 
 	public MainFrame(String userName) {
+		leaderPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		outerPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		innerPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+		leaderPanel.setLeftComponent(outerPanel);
+		leaderPanel.setDividerLocation(700);
 		outerPanel.setBottomComponent(innerPanel);
-		outerPanel.setDividerLocation(300);
+		outerPanel.setDividerLocation(450);
 		outerPanel.setDividerSize(2);
-		innerPanel.setDividerLocation(335);
+		innerPanel.setDividerLocation(350);
 		innerPanel.setDividerSize(1);
 		//
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -69,7 +83,7 @@ public class MainFrame extends JFrame {
 		// 创建窗体
 		frame = new JFrame("BF Client");
 		frame.setLayout(new BorderLayout());
-
+		// 和菜单有关的界面代码
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
 		JMenu versionMenu = new JMenu("Version");
@@ -107,6 +121,7 @@ public class MainFrame extends JFrame {
 		redoMenuItem.addActionListener(new MenuItemActionListener());
 		initializationMenuItem.addActionListener(new MenuItemActionListener());
 
+		// 文本域的设计代码
 		codeTextArea = new JTextArea();
 		JScrollPane scrollPane = new JScrollPane(codeTextArea);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -148,10 +163,53 @@ public class MainFrame extends JFrame {
 		outputPanel.add(outputResult, BorderLayout.CENTER);
 		innerPanel.setLeftComponent(inputPanel);
 		innerPanel.setRightComponent(outputPanel);
+
+		// 接下来是可视化部分的设计
+		//
+		//
+		visiablePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+		leaderPanel.setBottomComponent(visiablePanel);
+		visiablePanel.setDividerLocation(450);
+		JPanel visiablePanelAbove = new JPanel();
+		JPanel compilePanel=new JPanel();
+		JPanel displayPanel=new JPanel();
+		visiablePanelAbove.setLayout(new BorderLayout());
+		visiablePanelAbove.add(compilePanel,BorderLayout.NORTH);
+		visiablePanelAbove.add(displayPanel,BorderLayout.SOUTH);
+		
+		JButton compileButton=new JButton("Compile");
+		compileButton.addActionListener(new CompileListener());
+		compileLabel=new JLabel("请点击编译按钮编译");
+		compilePanel.add(compileButton);
+		compilePanel.add(compileLabel);
+		
+		displayPanel.setLayout(new GridLayout(6, 5));
+		JPanel visiablePanelBelow = new JPanel();
+		visiablePanel.setLeftComponent(visiablePanelAbove);
+		visiablePanel.setBottomComponent(visiablePanelBelow);
+		
+        boxes=new ArrayList<Box>();
+        for(int i=0;i<30;i++){
+		Box memorycell = new Box(BoxLayout.Y_AXIS);
+		JLabel intLabel=new JLabel("int:");
+		JLabel charLabel=new JLabel("char:");
+		MemoryCellButoon memoryCellButoon=new MemoryCellButoon();
+		memoryCellButoon.setText("M("+String.valueOf((i+1))+")");
+		memoryCellButoon.setNumber(i+1);
+		memorycell.add(intLabel);
+		memorycell.add(charLabel);
+		memorycell.add(memoryCellButoon);
+		boxes.add(memorycell);
+		displayPanel.add(memorycell);
+        }
+        
+		//
+		//
+
 		// 显示结果
-		frame.getContentPane().add(outerPanel);
+		frame.getContentPane().add(leaderPanel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(700, 500);
+		frame.setSize(1100, 650);
 		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
 	}
@@ -174,7 +232,9 @@ public class MainFrame extends JFrame {
 			case "Save":
 				String code = codeTextArea.getText();
 				try {
-					RemoteHelper.getInstance().getIOService().saveFile(code, userName, fileName.getFileName());
+					IOService ioService = RemoteHelper.getInstance().getIOService();
+					ioService.setWriteFileMethod(new WriteFileInNewestVersion());
+					ioService.writeFile(code, userName, fileName.getFileName());
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
 				}
@@ -232,7 +292,7 @@ public class MainFrame extends JFrame {
 				}
 				break;
 			case "Initialize":
-				System.out.println("!!!");
+				// System.out.println("!!!");
 				frame.setSize(700, 500);
 				frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 				outerPanel.setDividerLocation(300);
@@ -274,16 +334,16 @@ public class MainFrame extends JFrame {
 			// TODO Auto-generated method stub
 			revoke = false;
 			revokeStack.push(codeTextArea.getText());
-			System.out.println(codeTextArea.getText());
+			// System.out.println(codeTextArea.getText());
 		}
 	}
 
 	// 实时编译策略
-	private String execute(String code, String param) throws RemoteException {
+	private String compile(String code, String param) {
 		// TODO Auto-generated method stub
 		String out = "";
 		int inputPointer = 0;
-		int pointer = 0;
+		pointer = 0;
 		int programCounter = 0;
 		memorycells = new ArrayList<MemoryCell>();
 		memorycells.add(new MemoryCell(0));
@@ -327,6 +387,9 @@ public class MainFrame extends JFrame {
 			case '[':
 				if (memorycells.get(pointer).getValue() == 0) {
 					programCounter = rightShift(programCounter, code) + 1;
+					if(pointer==0){
+						return "error";
+					}
 				} else {
 					programCounter++;
 				}
@@ -334,6 +397,9 @@ public class MainFrame extends JFrame {
 			case ']':
 				if (memorycells.get(pointer).getValue() != 0) {
 					programCounter = liftShift(programCounter, code) + 1;
+					if(pointer==0){
+						return "error";
+					}
 				} else {
 					programCounter++;
 				}
@@ -348,22 +414,55 @@ public class MainFrame extends JFrame {
 	}
 
 	private int rightShift(int programCounter, String code) {
-		for (int i = programCounter; i < code.length(); i++) {
-			if (code.charAt(i) == ']') {
+		int count = 0;
+		for (int i = programCounter + 1; i < code.length(); i++) {
+			if (code.charAt(i) == '[') {
+				count++;
+				continue;
+			}
+			if (code.charAt(i) == ']' && count == 0) {
 				return i;
+			} else if (code.charAt(i) == ']') {
+				count--;
 			}
 		}
 		System.out.println("找不到对应的“]”");
+		compileLabel.setText("编译错误：找不到对应的“]”");
 		return -1;
 	}
 
 	private int liftShift(int programCounter, String code) {
-		for (int i = programCounter; i >= 0; i--) {
-			if (code.charAt(i) == '[') {
+		int count = 0;
+		for (int i = programCounter - 1; i >= 0; i--) {
+			if (code.charAt(i) == ']') {
+				count++;
+				continue;
+			}
+			if (code.charAt(i) == '[' && count == 0) {
 				return i;
+			} else if (code.charAt(i) == '[') {
+				count--;
 			}
 		}
 		System.out.println("找不到对应的“[”");
+		compileLabel.setText("编译错误：找不到对应的“]”");
 		return -1;
+	}
+	class CompileListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			compile(codeTextArea.getText(), inputTextArea.getText());
+			int count=0;
+			for(MemoryCell memoryCell:memorycells){
+				if(count>=30){
+					break;
+				}
+				JLabel intLabel=(JLabel)boxes.get(count).getComponents()[0];
+				JLabel charLabel=(JLabel)boxes.get(count).getComponents()[1];
+				intLabel.setText("int:"+String.valueOf(memoryCell.getValue()));
+				charLabel.setText("char:"+memoryCell.getValueInChar());
+				count++;
+			}
+		}
 	}
 }

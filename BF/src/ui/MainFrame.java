@@ -13,11 +13,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -28,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import rmi.RemoteHelper;
@@ -37,6 +41,7 @@ import toolKit.FileName;
 import toolKit.MemoryCell;
 
 public class MainFrame extends JFrame {
+
 	/**
 	 * 
 	 */
@@ -63,6 +68,8 @@ public class MainFrame extends JFrame {
 	private JSplitPane innerPanel;
 	private ArrayList<Box> boxes;
 	private JSplitPane leaderPanel;
+	private JTextField addField;
+	private JTextField subField;
 
 	public MainFrame(String userName) {
 		leaderPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
@@ -88,10 +95,12 @@ public class MainFrame extends JFrame {
 		JMenu fileMenu = new JMenu("File");
 		JMenu versionMenu = new JMenu("Version");
 		JMenu codeMenu = new JMenu("Code");
+		JMenu methodMenu = new JMenu("Method");
 		JMenu windowMenu = new JMenu("Window");
 		menuBar.add(fileMenu);
 		menuBar.add(versionMenu);
 		menuBar.add(codeMenu);
+		menuBar.add(methodMenu);
 		menuBar.add(windowMenu);
 		JMenuItem newMenuItem = new JMenuItem("New");
 		fileMenu.add(newMenuItem);
@@ -107,6 +116,12 @@ public class MainFrame extends JFrame {
 		codeMenu.add(revokeMenuItem);
 		JMenuItem redoMenuItem = new JMenuItem("Redo");
 		codeMenu.add(redoMenuItem);
+		JMenuItem newMethodMenuItem = new JMenuItem("NewMethod");
+		methodMenu.add(newMethodMenuItem);
+		JMenuItem displayMethodMenuItem = new JMenuItem("DisplayMethod");
+		methodMenu.add(displayMethodMenuItem);
+		JMenuItem changeMethodMenuItem = new JMenuItem("ChangeMethod");
+		methodMenu.add(changeMethodMenuItem);
 		JMenuItem initializationMenuItem = new JMenuItem("Initialize");
 		windowMenu.add(initializationMenuItem);
 
@@ -119,6 +134,9 @@ public class MainFrame extends JFrame {
 		showVersionMenuItem.addActionListener(new MenuItemActionListener());
 		revokeMenuItem.addActionListener(new MenuItemActionListener());
 		redoMenuItem.addActionListener(new MenuItemActionListener());
+		newMethodMenuItem.addActionListener(new MenuItemActionListener());
+		displayMethodMenuItem.addActionListener(new MenuItemActionListener());
+		changeMethodMenuItem.addActionListener(new MenuItemActionListener());
 		initializationMenuItem.addActionListener(new MenuItemActionListener());
 
 		// 文本域的设计代码
@@ -170,42 +188,73 @@ public class MainFrame extends JFrame {
 		visiablePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		leaderPanel.setBottomComponent(visiablePanel);
 		visiablePanel.setDividerLocation(450);
+		visiablePanel.setDividerSize(2);
 		JPanel visiablePanelAbove = new JPanel();
-		JPanel compilePanel=new JPanel();
-		JPanel displayPanel=new JPanel();
+		JPanel compilePanel = new JPanel();
+		JPanel displayPanel = new JPanel();
 		visiablePanelAbove.setLayout(new BorderLayout());
-		visiablePanelAbove.add(compilePanel,BorderLayout.NORTH);
-		visiablePanelAbove.add(displayPanel,BorderLayout.SOUTH);
-		
-		JButton compileButton=new JButton("Compile");
+		visiablePanelAbove.add(compilePanel, BorderLayout.NORTH);
+		visiablePanelAbove.add(displayPanel, BorderLayout.SOUTH);
+
+		JButton compileButton = new JButton("Compile");
 		compileButton.addActionListener(new CompileListener());
-		compileLabel=new JLabel("请点击编译按钮编译");
+		compileLabel = new JLabel("请点击编译按钮编译");
 		compilePanel.add(compileButton);
 		compilePanel.add(compileLabel);
-		
+
 		displayPanel.setLayout(new GridLayout(6, 5));
 		JPanel visiablePanelBelow = new JPanel();
 		visiablePanel.setLeftComponent(visiablePanelAbove);
 		visiablePanel.setBottomComponent(visiablePanelBelow);
-		
-        boxes=new ArrayList<Box>();
-        for(int i=0;i<30;i++){
-		Box memorycell = new Box(BoxLayout.Y_AXIS);
-		JLabel intLabel=new JLabel("int:");
-		JLabel charLabel=new JLabel("char:");
-		MemoryCellButoon memoryCellButoon=new MemoryCellButoon();
-		memoryCellButoon.setText("M("+String.valueOf((i+1))+")");
-		memoryCellButoon.setNumber(i+1);
-		memorycell.add(intLabel);
-		memorycell.add(charLabel);
-		memorycell.add(memoryCellButoon);
-		boxes.add(memorycell);
-		displayPanel.add(memorycell);
-        }
-        
-		//
-		//
 
+		TitledBorder tBorder3 = (BorderFactory.createTitledBorder("Visiable"));
+		tBorder3.setTitleFont(new Font("Monaco", Font.PLAIN, 15));
+		tBorder3.setTitleColor(Color.GREEN);
+		visiablePanelAbove.setBorder(tBorder3);
+
+		boxes = new ArrayList<Box>();
+		for (int i = 0; i < 30; i++) {
+			Box memorycell = new Box(BoxLayout.Y_AXIS);
+			JLabel intLabel = new JLabel("int:");
+			JLabel charLabel = new JLabel("char:");
+			MemoryCellButton memoryCellButoon = new MemoryCellButton();
+			memoryCellButoon.addActionListener(new MoveListener());
+			memoryCellButoon.setText("M(" + String.valueOf((i + 1)) + ")");
+			memoryCellButoon.setNumber(i + 1);
+			memorycell.add(intLabel);
+			memorycell.add(charLabel);
+			memorycell.add(memoryCellButoon);
+			boxes.add(memorycell);
+			displayPanel.add(memorycell);
+		}
+
+		//
+		// 显示辅助面板
+		JPanel addPanel = new JPanel();
+		JPanel subPanel = new JPanel();
+		JButton addButton = new JButton();
+		JButton subButton = new JButton();
+		addButton.setText("+");
+		subButton.setText("-");
+		addButton.addActionListener(new AssistantListener());
+		subButton.addActionListener(new AssistantListener());
+		addButton.setForeground(Color.RED);
+		subButton.setForeground(Color.green);
+		addField = new JTextField(5);
+		subField = new JTextField(5);
+
+		addPanel.add(addButton);
+		addPanel.add(addField);
+		subPanel.add(subButton);
+		subPanel.add(subField);
+		visiablePanelBelow.setLayout(new GridLayout(2, 1));
+		visiablePanelBelow.add(addPanel);
+		visiablePanelBelow.add(subPanel);
+		TitledBorder tBorder4 = (BorderFactory.createTitledBorder("Assist"));
+		tBorder4.setTitleFont(new Font("Monaco", Font.PLAIN, 15));
+		tBorder4.setTitleColor(Color.YELLOW);
+		visiablePanelBelow.setBorder(tBorder4);
+		//
 		// 显示结果
 		frame.getContentPane().add(leaderPanel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -291,12 +340,28 @@ public class MainFrame extends JFrame {
 					revokeStack.push(temp2);
 				}
 				break;
+			case "NewMethod":
+				new NewMethodFrame(userName);
+				break;
+			case "DisplayMethod":
+				new ShowMethodFrame(userName);
+				break;
+			case "ChangeMethod":
+				new ChangeMethodFrame(userName);
+				break;
 			case "Initialize":
 				// System.out.println("!!!");
-				frame.setSize(700, 500);
+				frame.setSize(1100, 650);
 				frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
-				outerPanel.setDividerLocation(300);
-				innerPanel.setDividerLocation(335);
+				leaderPanel.setDividerLocation(700);
+				visiablePanel.setDividerLocation(450);
+				outerPanel.setDividerLocation(450);
+				innerPanel.setDividerLocation(350);
+				leaderPanel.repaint();
+				visiablePanel.repaint();
+				outerPanel.repaint();
+				innerPanel.repaint();
+				frame.repaint();
 				break;
 			default:
 				break;
@@ -375,6 +440,7 @@ public class MainFrame extends JFrame {
 			case ',':
 				if (inputPointer >= param.length()) {
 					System.out.println("未输入足够的参数！");
+					return "未输入足够的参数！";
 				}
 				memorycells.get(pointer).setValue((int) param.charAt(inputPointer));
 				inputPointer++;
@@ -387,8 +453,8 @@ public class MainFrame extends JFrame {
 			case '[':
 				if (memorycells.get(pointer).getValue() == 0) {
 					programCounter = rightShift(programCounter, code) + 1;
-					if(pointer==0){
-						return "error";
+					if (programCounter == 0) {
+						return "编译错误：找不到对应的“]”";
 					}
 				} else {
 					programCounter++;
@@ -397,8 +463,8 @@ public class MainFrame extends JFrame {
 			case ']':
 				if (memorycells.get(pointer).getValue() != 0) {
 					programCounter = liftShift(programCounter, code) + 1;
-					if(pointer==0){
-						return "error";
+					if (programCounter == 0) {
+						return "编译错误：找不到对应的“[”";
 					}
 				} else {
 					programCounter++;
@@ -427,7 +493,6 @@ public class MainFrame extends JFrame {
 			}
 		}
 		System.out.println("找不到对应的“]”");
-		compileLabel.setText("编译错误：找不到对应的“]”");
 		return -1;
 	}
 
@@ -445,24 +510,109 @@ public class MainFrame extends JFrame {
 			}
 		}
 		System.out.println("找不到对应的“[”");
-		compileLabel.setText("编译错误：找不到对应的“]”");
 		return -1;
 	}
-	class CompileListener implements ActionListener{
+
+	class CompileListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			compile(codeTextArea.getText(), inputTextArea.getText());
-			int count=0;
-			for(MemoryCell memoryCell:memorycells){
-				if(count>=30){
+			compileLabel.setText(compile(replaceMethod(codeTextArea.getText()), inputTextArea.getText()));
+			// 判断是否有编译错误
+			if (compileLabel.getText().contains("编译错误：")) {
+				compileLabel.setForeground(Color.RED);
+			} else {
+				compileLabel.setForeground(Color.BLACK);
+			}
+			int count = 0;
+			for (MemoryCell memoryCell : memorycells) {
+				if (count >= 30) {
 					break;
 				}
-				JLabel intLabel=(JLabel)boxes.get(count).getComponents()[0];
-				JLabel charLabel=(JLabel)boxes.get(count).getComponents()[1];
-				intLabel.setText("int:"+String.valueOf(memoryCell.getValue()));
-				charLabel.setText("char:"+memoryCell.getValueInChar());
+				JLabel intLabel = (JLabel) boxes.get(count).getComponents()[0];
+				JLabel charLabel = (JLabel) boxes.get(count).getComponents()[1];
+				intLabel.setText("int:" + String.valueOf(memoryCell.getValue()));
+				charLabel.setText("char:" + memoryCell.getValueInChar());
 				count++;
 			}
+			changeDisplay();
 		}
+	}
+
+	class AssistantListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				if (Integer.parseInt((addField.getText())) < 0) {
+					compileLabel.setText("错误的辅助信息输入");
+					compileLabel.setForeground(Color.RED);
+				}
+				if (e.getActionCommand() == "+") {
+					for (int i = Integer.parseInt((addField.getText())); i > 0; i--) {
+						codeTextArea.append("+");
+						compileLabel.setForeground(Color.BLACK);
+					}
+					addField.setText("");
+				} else {
+					for (int i = Integer.parseInt((subField.getText())); i > 0; i--) {
+						codeTextArea.append("-");
+						compileLabel.setForeground(Color.BLACK);
+					}
+					subField.setText("");
+				}
+			} catch (Exception ex) {
+				compileLabel.setText("错误的辅助信息输入");
+				compileLabel.setForeground(Color.RED);
+				addField.setText("");
+				subField.setText("");
+			}
+		}
+	}
+
+	class MoveListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			MemoryCellButton button = (MemoryCellButton) e.getSource();
+			int distance = button.getNumber() - pointer - 1;
+			if (distance == 0) {
+				return;
+			} else if (distance > 0) {
+				for (; distance > 0; distance--) {
+					codeTextArea.append(">");
+				}
+				compile(codeTextArea.getText(), inputTextArea.getText());
+				changeDisplay();
+			} else {
+				for (; distance < 0; distance++) {
+					codeTextArea.append("<");
+				}
+				compile(codeTextArea.getText(), inputTextArea.getText());
+				changeDisplay();
+			}
+		}
+	}
+
+	private void changeDisplay() {
+		for (Box eachBox : boxes) {
+			MemoryCellButton memoryCellButoon = (MemoryCellButton) eachBox.getComponent(2);
+			if (memoryCellButoon.getNumber() == pointer + 1) {
+				memoryCellButoon.setForeground(Color.GREEN);
+			} else {
+				memoryCellButoon.setForeground(Color.BLACK);
+			}
+		}
+	}
+
+	private String replaceMethod(String code) {
+		try {
+			Map<String, String> methodMap = RemoteHelper.getInstance().getUserService().getUserMethodMap(userName);
+			for (String key : methodMap.keySet()) {
+				code = code.replaceAll(key, methodMap.get(key));
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return code;
 	}
 }

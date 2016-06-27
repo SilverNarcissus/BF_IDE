@@ -2,6 +2,7 @@ package rmi;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Map;
 
 import service.ExecuteService;
 import service.IOService;
@@ -83,5 +84,20 @@ public class DataRemoteObject extends UnicastRemoteObject implements IOService, 
 	@Override
 	public void setWriteFileMethod(WriteFileMethod writeFileMethod) throws RemoteException {
 		iOService.setWriteFileMethod(writeFileMethod);
+	}
+
+	@Override
+	public Map<String, String> getUserMethodMap(String userName) throws RemoteException {
+		return userService.getUserMethodMap(userName);
+	}
+
+	@Override
+	public boolean putUserMethodMap(String userName, String methodName, String code) throws RemoteException {
+		return userService.putUserMethodMap(userName, methodName, code);
+	}
+
+	@Override
+	public boolean removeUserMethodMap(String userName, String methodName) throws RemoteException {
+		return userService.removeUserMethodMap(userName, methodName);
 	}
 }

@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
+import java.util.Map;
 
 import service.UserService;
 import serviceToolKit.UserInformation;
@@ -29,11 +30,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public boolean login(String userName, String password) throws RemoteException {
-		if(userManager.getUserInfomation(userName)!=null){
-			if(userManager.getUserInfomation(userName).getPassword().equals(password)){
+		if (userManager.getUserInfomation(userName) != null) {
+			if (userManager.getUserInfomation(userName).getPassword().equals(password)) {
 				return true;
-			}
-			else {
+			} else {
 				return false;
 			}
 		}
@@ -43,6 +43,37 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean logout(String username) throws RemoteException {
 		return true;
+	}
+
+	@Override
+	public Map<String, String> getUserMethodMap(String userName) throws RemoteException {
+		if (userManager.getUserInfomation(userName) != null) {
+			return userManager.getUserInfomation(userName).getMethodMap();
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public boolean removeUserMethodMap(String userName, String methodName) throws RemoteException{
+		if (userManager.getUserInfomation(userName) != null) {
+			userManager.getUserInfomation(userName).getMethodMap().remove(methodName);
+			saveUserInformation(userManager);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean putUserMethodMap(String userName, String methodName, String code) throws RemoteException {
+		if (userManager.getUserInfomation(userName) != null) {
+			userManager.getUserInfomation(userName).getMethodMap().put(methodName, code);
+			saveUserInformation(userManager);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private void saveUserInformation(UserManager userManager) {

@@ -19,14 +19,13 @@ import java.util.Stack;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -37,8 +36,8 @@ import javax.swing.border.TitledBorder;
 import rmi.RemoteHelper;
 import service.IOService;
 import serviceToolKit.WriteFileInNewestVersion;
-import toolKit.FileName;
-import toolKit.MemoryCell;
+import toolKit.*;
+import toolKit.Compiler;
 
 public class MainFrame extends JFrame {
 
@@ -49,7 +48,7 @@ public class MainFrame extends JFrame {
 	private int pointer;
 	private ArrayList<MemoryCell> memorycells;
 	private static final long serialVersionUID = 1L;
-	private JTextArea codeTextArea;
+	private CodeTextPanel codeTextPane;
 	private JTextArea inputTextArea;
 	private JLabel outputResult;
 	private String userName;
@@ -70,8 +69,19 @@ public class MainFrame extends JFrame {
 	private JSplitPane leaderPanel;
 	private JTextField addField;
 	private JTextField subField;
+	private JTextField loopField;
+	private Compiler compiler;
+	private JMenuItem saveMenuItem;
+	private JMenu versionMenu;
+	private JMenu codeMenu;
+	private boolean saveFlag=true;
 
 	public MainFrame(String userName) {
+		// 一些初始化
+		memorycells = new ArrayList<MemoryCell>();
+		memorycells.add(new MemoryCell(0));
+		compiler = new Compiler(memorycells);
+		//
 		leaderPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		outerPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		innerPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
@@ -93,61 +103,107 @@ public class MainFrame extends JFrame {
 		// 和菜单有关的界面代码
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
-		JMenu versionMenu = new JMenu("Version");
-		JMenu codeMenu = new JMenu("Code");
+		versionMenu = new JMenu("Version");
+		versionMenu.setEnabled(false);
+		codeMenu = new JMenu("Code");
+		codeMenu.setEnabled(false);
 		JMenu methodMenu = new JMenu("Method");
+		JMenu debugMenu = new JMenu("Debug");
 		JMenu windowMenu = new JMenu("Window");
+		JMenu userMenu = new JMenu("User");
 		menuBar.add(fileMenu);
 		menuBar.add(versionMenu);
 		menuBar.add(codeMenu);
 		menuBar.add(methodMenu);
+		menuBar.add(debugMenu);
 		menuBar.add(windowMenu);
+		menuBar.add(userMenu);
+		// File
 		JMenuItem newMenuItem = new JMenuItem("New");
 		fileMenu.add(newMenuItem);
 		JMenuItem openMenuItem = new JMenuItem("Open");
 		fileMenu.add(openMenuItem);
-		JMenuItem saveMenuItem = new JMenuItem("Save");
+		saveMenuItem = new JMenuItem("Save");
+		saveMenuItem.setEnabled(false);
 		fileMenu.add(saveMenuItem);
-		JMenuItem runMenuItem = new JMenuItem("Run");
-		fileMenu.add(runMenuItem);
+		//
+		// Version
 		JMenuItem showVersionMenuItem = new JMenuItem("Version");
 		versionMenu.add(showVersionMenuItem);
+		//
+		// code
 		JMenuItem revokeMenuItem = new JMenuItem("Revoke");
 		codeMenu.add(revokeMenuItem);
 		JMenuItem redoMenuItem = new JMenuItem("Redo");
 		codeMenu.add(redoMenuItem);
+		JMenuItem runMenuItem = new JMenuItem("Run");
+		codeMenu.add(runMenuItem);
+		//
+		// Method
 		JMenuItem newMethodMenuItem = new JMenuItem("NewMethod");
 		methodMenu.add(newMethodMenuItem);
 		JMenuItem displayMethodMenuItem = new JMenuItem("DisplayMethod");
 		methodMenu.add(displayMethodMenuItem);
 		JMenuItem changeMethodMenuItem = new JMenuItem("ChangeMethod");
 		methodMenu.add(changeMethodMenuItem);
-		JMenuItem initializationMenuItem = new JMenuItem("Initialize");
-		windowMenu.add(initializationMenuItem);
-
+		//
+		// Debug
+		JMenuItem totheNextBreakpointDebugMenuItem = new JMenuItem("ToTheNextBreakpoint");
+		JMenuItem stepIntoDebugMenuItem = new JMenuItem("StepInto");
+		JMenuItem stepOverDebugMenuItem = new JMenuItem("StepOver");
+		JMenuItem stepOutDebugMenuItem = new JMenuItem("StepOut");
+		JMenuItem debugInitializeDebugMenuItem = new JMenuItem("DebugInitialize");
+		debugMenu.add(totheNextBreakpointDebugMenuItem);
+		debugMenu.add(stepIntoDebugMenuItem);
+		debugMenu.add(stepOverDebugMenuItem);
+		debugMenu.add(stepOutDebugMenuItem);
+		debugMenu.add(debugInitializeDebugMenuItem);
+		// Window
+		JMenuItem completeViewMenuItem = new JMenuItem("CompleteView");
+		windowMenu.add(completeViewMenuItem);
+		JMenuItem conciseViewMenuItem = new JMenuItem("ConciseView");
+		windowMenu.add(conciseViewMenuItem);
+		//
+		// User
+		JMenuItem LogoutMenuItem = new JMenuItem("Logout");
+		userMenu.add(LogoutMenuItem);
+		//
 		frame.setJMenuBar(menuBar);
-
+		// File
 		newMenuItem.addActionListener(new MenuItemActionListener());
 		openMenuItem.addActionListener(new MenuItemActionListener());
 		saveMenuItem.addActionListener(new MenuItemActionListener());
 		runMenuItem.addActionListener(new MenuItemActionListener());
+		// Version
 		showVersionMenuItem.addActionListener(new MenuItemActionListener());
+		// Code
 		revokeMenuItem.addActionListener(new MenuItemActionListener());
 		redoMenuItem.addActionListener(new MenuItemActionListener());
+		// Method
 		newMethodMenuItem.addActionListener(new MenuItemActionListener());
 		displayMethodMenuItem.addActionListener(new MenuItemActionListener());
 		changeMethodMenuItem.addActionListener(new MenuItemActionListener());
-		initializationMenuItem.addActionListener(new MenuItemActionListener());
-
+		// Debug
+		totheNextBreakpointDebugMenuItem.addActionListener(new MenuItemActionListener());
+		stepIntoDebugMenuItem.addActionListener(new MenuItemActionListener());
+		stepOverDebugMenuItem.addActionListener(new MenuItemActionListener());
+		stepOutDebugMenuItem.addActionListener(new MenuItemActionListener());
+		debugInitializeDebugMenuItem.addActionListener(new MenuItemActionListener());
+		// Window
+		completeViewMenuItem.addActionListener(new MenuItemActionListener());
+		conciseViewMenuItem.addActionListener(new MenuItemActionListener());
+		//
+		// User
+		LogoutMenuItem.addActionListener(new MenuItemActionListener());
 		// 文本域的设计代码
-		codeTextArea = new JTextArea();
-		JScrollPane scrollPane = new JScrollPane(codeTextArea);
+		codeTextPane = new CodeTextPanel();
+		JScrollPane scrollPane = new JScrollPane(codeTextPane);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		codeTextArea.setMargin(new Insets(10, 10, 10, 10));
-		codeTextArea.setBackground(Color.LIGHT_GRAY);
-		codeTextArea.setEditable(false);
-		codeTextArea.addKeyListener(new RevokeListener());
+		codeTextPane.setMargin(new Insets(10, 10, 10, 10));
+		codeTextPane.setBackground(Color.LIGHT_GRAY);
+		codeTextPane.setEditable(false);
+		codeTextPane.addKeyListener(new RevokeListener());
 		outerPanel.setTopComponent(scrollPane);
 
 		// frame.add(scrollPane, BorderLayout.CENTER);
@@ -232,24 +288,33 @@ public class MainFrame extends JFrame {
 		// 显示辅助面板
 		JPanel addPanel = new JPanel();
 		JPanel subPanel = new JPanel();
+		JPanel loopPanel = new JPanel();
 		JButton addButton = new JButton();
 		JButton subButton = new JButton();
+		JButton loopButton = new JButton();
 		addButton.setText("+");
 		subButton.setText("-");
+		loopButton.setText("loop");
 		addButton.addActionListener(new AssistantListener());
 		subButton.addActionListener(new AssistantListener());
+		loopButton.addActionListener(new AssistantListener());
 		addButton.setForeground(Color.RED);
 		subButton.setForeground(Color.green);
+		loopButton.setForeground(Color.BLUE);
 		addField = new JTextField(5);
 		subField = new JTextField(5);
+		loopField = new JTextField(5);
 
 		addPanel.add(addButton);
 		addPanel.add(addField);
 		subPanel.add(subButton);
 		subPanel.add(subField);
-		visiablePanelBelow.setLayout(new GridLayout(2, 1));
+		loopPanel.add(loopButton);
+		loopPanel.add(loopField);
+		visiablePanelBelow.setLayout(new GridLayout(3, 1));
 		visiablePanelBelow.add(addPanel);
 		visiablePanelBelow.add(subPanel);
+		visiablePanelBelow.add(loopPanel);
 		TitledBorder tBorder4 = (BorderFactory.createTitledBorder("Assist"));
 		tBorder4.setTitleFont(new Font("Monaco", Font.PLAIN, 15));
 		tBorder4.setTitleColor(Color.YELLOW);
@@ -261,6 +326,8 @@ public class MainFrame extends JFrame {
 		frame.setSize(1100, 650);
 		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
+		codeTextPane.setText("");
+		setConciseView();
 	}
 
 	class MenuItemActionListener implements ActionListener {
@@ -275,11 +342,15 @@ public class MainFrame extends JFrame {
 				revokeStack = new Stack<String>();
 				redoStack = new Stack<String>();
 				new NewFileNameFrame(fileName, userName, mainFrame);
-				codeTextArea.setText("");
-				revokeStack.push(codeTextArea.getText());
+				codeTextPane.setText("");
+				revokeStack.push(codeTextPane.getText());
+				clearBoxes();
+				compiler.initialize();
+				pointer = compiler.getPointer();
 				break;
 			case "Save":
-				String code = codeTextArea.getText();
+				String code = codeTextPane.getText();
+				saveFlag = true;
 				try {
 					IOService ioService = RemoteHelper.getInstance().getIOService();
 					ioService.setWriteFileMethod(new WriteFileInNewestVersion());
@@ -291,20 +362,17 @@ public class MainFrame extends JFrame {
 			case "Open":
 				revokeStack = new Stack<String>();
 				redoStack = new Stack<String>();
-				new OpenFrame(fileName, userName, codeTextArea, frame);
+				new OpenFrame(fileName, userName, codeTextPane, frame, mainFrame);
 				newFlag = true;
-				// try {
-				// RemoteHelper.getInstance().getIOService().showVersion(userName,
-				// "123");
-				// } catch (RemoteException e1) {
-				// e1.printStackTrace();
-				// }
+				clearBoxes();
+				compiler.initialize();
+				pointer = compiler.getPointer();
 				break;
 			case "Run":
 				String result = "";
 				try {
-					result = RemoteHelper.getInstance().getExecuteService().execute(codeTextArea.getText(),
-							inputTextArea.getText());
+					result = RemoteHelper.getInstance().getExecuteService()
+							.execute(replaceMethod(codeTextPane.getText()), inputTextArea.getText());
 					outputResult.setText(result);
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -313,8 +381,11 @@ public class MainFrame extends JFrame {
 			case "Version":
 				revokeStack = new Stack<String>();
 				redoStack = new Stack<String>();
-				new ShowVersionFrame(fileName, userName, codeTextArea, frame);
+				new ShowVersionFrame(fileName, userName, codeTextPane, frame,mainFrame);
 				newFlag = true;
+				clearBoxes();
+				compiler.initialize();
+				pointer = compiler.getPointer();
 				break;
 			case "Revoke":
 				if (!((revokeStack.size() == 1 && !revoke) || revokeStack.empty())) {
@@ -324,7 +395,7 @@ public class MainFrame extends JFrame {
 						revoke = true;
 					}
 					String temp1 = revokeStack.pop();
-					codeTextArea.setText(temp1);
+					codeTextPane.setText(temp1);
 					redoStack.push(temp1);
 				}
 				break;
@@ -336,7 +407,7 @@ public class MainFrame extends JFrame {
 						redo = true;
 					}
 					String temp2 = redoStack.pop();
-					codeTextArea.setText(temp2);
+					codeTextPane.setText(temp2);
 					revokeStack.push(temp2);
 				}
 				break;
@@ -349,19 +420,94 @@ public class MainFrame extends JFrame {
 			case "ChangeMethod":
 				new ChangeMethodFrame(userName);
 				break;
-			case "Initialize":
+			case "ToTheNextBreakpoint":
+				clearBoxes();
+				removeMark();
+				compileLabel.setText(compiler.toTheNextBreakpoint(codeTextPane.getText(), inputTextArea.getText()));
+				pointer = compiler.getPointer();
+				changeCompilerLabelColor();
+				setMemoryCell();
+				changeDisplay();
+				setMark();
+				//
+				// outputResult.setText(String.valueOf(compiler.getProgramCounter()));
+				//
+				break;
+			case "StepInto":
+				clearBoxes();
+				removeMark();
+				// System.out.println("qwieqwudasj:" + codeTextPane.getText());
+				compileLabel.setText(compiler.stepInto(codeTextPane.getText(), inputTextArea.getText()));
+				pointer = compiler.getPointer();
+				changeCompilerLabelColor();
+				setMemoryCell();
+				changeDisplay();
+				setMark();
+				//
+				// outputResult.setText(String.valueOf(compiler.getProgramCounter()));
+				//
+				break;
+			case "StepOver":
+				clearBoxes();
+				removeMark();
+				compileLabel.setText(compiler.stepOver(codeTextPane.getText(), inputTextArea.getText()));
+				pointer = compiler.getPointer();
+				changeCompilerLabelColor();
+				setMemoryCell();
+				changeDisplay();
+				setMark();
+				//
+				// outputResult.setText(String.valueOf(compiler.getProgramCounter()));
+				//
+				break;
+			case "StepOut":
+				clearBoxes();
+				removeMark();
+				compileLabel.setText(compiler.stepOut(codeTextPane.getText(), inputTextArea.getText()));
+				pointer = compiler.getPointer();
+				changeCompilerLabelColor();
+				setMemoryCell();
+				changeDisplay();
+				setMark();
+				//
+				// outputResult.setText(String.valueOf(compiler.getProgramCounter()));
+				//
+				break;
+			case "DebugInitialize":
+				compiler.initialize();
+				pointer = compiler.getPointer();
+				clearBoxes();
+				removeMark();
+				//
+				// outputResult.setText(String.valueOf(compiler.getProgramCounter()));
+				//
+				break;
+			case "CompleteView":
 				// System.out.println("!!!");
 				frame.setSize(1100, 650);
 				frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 				leaderPanel.setDividerLocation(700);
+				leaderPanel.setDividerSize(3);
 				visiablePanel.setDividerLocation(450);
 				outerPanel.setDividerLocation(450);
 				innerPanel.setDividerLocation(350);
+				visiablePanel.setVisible(true);
+				innerPanel.setVisible(true);
 				leaderPanel.repaint();
 				visiablePanel.repaint();
 				outerPanel.repaint();
 				innerPanel.repaint();
 				frame.repaint();
+				break;
+			case "ConciseView":
+				setConciseView();
+				break;
+			case "Logout":
+				if (saveFlag||JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
+						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					frame.dispose();
+					new LoginFrame();
+				}
 				break;
 			default:
 				break;
@@ -370,8 +516,8 @@ public class MainFrame extends JFrame {
 	}
 
 	public void setEnable() {
-		codeTextArea.setEditable(true);
-		codeTextArea.setBackground(Color.WHITE);
+		codeTextPane.setEditable(true);
+		codeTextPane.setBackground(Color.WHITE);
 	}
 
 	public String getUserName() {
@@ -389,7 +535,8 @@ public class MainFrame extends JFrame {
 		public void keyPressed(KeyEvent e) {
 			// TODO Auto-generated method stub
 			if (newFlag) {
-				revokeStack.push(codeTextArea.getText());
+				saveFlag = false;
+				revokeStack.push(codeTextPane.getText());
 				newFlag = false;
 			}
 		}
@@ -397,8 +544,9 @@ public class MainFrame extends JFrame {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			// TODO Auto-generated method stub
+			saveFlag = false;
 			revoke = false;
-			revokeStack.push(codeTextArea.getText());
+			revokeStack.push(codeTextPane.getText());
 			// System.out.println(codeTextArea.getText());
 		}
 	}
@@ -410,7 +558,7 @@ public class MainFrame extends JFrame {
 		int inputPointer = 0;
 		pointer = 0;
 		int programCounter = 0;
-		memorycells = new ArrayList<MemoryCell>();
+		memorycells.clear();
 		memorycells.add(new MemoryCell(0));
 		while (programCounter < code.length()) {
 			char command = code.charAt(programCounter);
@@ -439,8 +587,8 @@ public class MainFrame extends JFrame {
 				break;
 			case ',':
 				if (inputPointer >= param.length()) {
-					System.out.println("未输入足够的参数！");
-					return "未输入足够的参数！";
+					System.out.println("编译错误：未输入足够的参数！");
+					return "编译错误：未输入足够的参数！";
 				}
 				memorycells.get(pointer).setValue((int) param.charAt(inputPointer));
 				inputPointer++;
@@ -516,24 +664,15 @@ public class MainFrame extends JFrame {
 	class CompileListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			compileLabel.setText(compile(replaceMethod(codeTextArea.getText()), inputTextArea.getText()));
+			compileLabel.setText(compile(replaceMethod(codeTextPane.getText()), inputTextArea.getText()));
 			// 判断是否有编译错误
 			if (compileLabel.getText().contains("编译错误：")) {
 				compileLabel.setForeground(Color.RED);
 			} else {
 				compileLabel.setForeground(Color.BLACK);
 			}
-			int count = 0;
-			for (MemoryCell memoryCell : memorycells) {
-				if (count >= 30) {
-					break;
-				}
-				JLabel intLabel = (JLabel) boxes.get(count).getComponents()[0];
-				JLabel charLabel = (JLabel) boxes.get(count).getComponents()[1];
-				intLabel.setText("int:" + String.valueOf(memoryCell.getValue()));
-				charLabel.setText("char:" + memoryCell.getValueInChar());
-				count++;
-			}
+			clearBoxes();
+			setMemoryCell();
 			changeDisplay();
 		}
 	}
@@ -541,29 +680,60 @@ public class MainFrame extends JFrame {
 	class AssistantListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			// 两者是控制前后括号的
+			boolean flag1 = true;
+			boolean flag2 = false;
+			//
 			try {
-				if (Integer.parseInt((addField.getText())) < 0) {
-					compileLabel.setText("错误的辅助信息输入");
-					compileLabel.setForeground(Color.RED);
-				}
 				if (e.getActionCommand() == "+") {
 					for (int i = Integer.parseInt((addField.getText())); i > 0; i--) {
-						codeTextArea.append("+");
+						if (flag1) {
+							codeTextPane.setText(codeTextPane.getText() + "(");
+							flag1 = false;
+						}
+						codeTextPane.setText(codeTextPane.getText() + "+");
 						compileLabel.setForeground(Color.BLACK);
+						flag2 = true;
+					}
+					if (flag2) {
+						codeTextPane.setText(codeTextPane.getText() + ")");
 					}
 					addField.setText("");
-				} else {
+				} else if (e.getActionCommand() == "-") {
 					for (int i = Integer.parseInt((subField.getText())); i > 0; i--) {
-						codeTextArea.append("-");
+						if (flag1) {
+							codeTextPane.setText(codeTextPane.getText() + "(");
+							flag1 = false;
+						}
+						codeTextPane.setText(codeTextPane.getText() + "-");
 						compileLabel.setForeground(Color.BLACK);
 					}
+					if (flag2) {
+						codeTextPane.setText(codeTextPane.getText() + ")");
+					}
 					subField.setText("");
+				} else {
+					for (int i = Integer.parseInt((loopField.getText())); i > 0; i--) {
+						if (flag1) {
+							codeTextPane.setText(codeTextPane.getText() + "(>");
+							flag1 = false;
+						}
+						codeTextPane.setText(codeTextPane.getText() + "+");
+						compileLabel.setForeground(Color.BLACK);
+						flag2 = true;
+					}
+					if (flag2) {
+						codeTextPane.setText(codeTextPane.getText() + "[<(Your code)>-]<");
+						codeTextPane.setText(codeTextPane.getText() + ")");
+					}
+					loopField.setText("");
 				}
 			} catch (Exception ex) {
 				compileLabel.setText("错误的辅助信息输入");
 				compileLabel.setForeground(Color.RED);
 				addField.setText("");
 				subField.setText("");
+				loopField.setText("");
 			}
 		}
 	}
@@ -579,17 +749,25 @@ public class MainFrame extends JFrame {
 				return;
 			} else if (distance > 0) {
 				for (; distance > 0; distance--) {
-					codeTextArea.append(">");
+					codeTextPane.setText(codeTextPane.getText() + ">");
 				}
-				compile(codeTextArea.getText(), inputTextArea.getText());
+				compile(codeTextPane.getText(), inputTextArea.getText());
 				changeDisplay();
 			} else {
 				for (; distance < 0; distance++) {
-					codeTextArea.append("<");
+					codeTextPane.setText(codeTextPane.getText() + "<");
 				}
-				compile(codeTextArea.getText(), inputTextArea.getText());
+				compile(codeTextPane.getText(), inputTextArea.getText());
 				changeDisplay();
 			}
+		}
+	}
+
+	private void changeCompilerLabelColor() {
+		if (compileLabel.getText().contains("编译错误") || compileLabel.getText().contains("运行错误")) {
+			compileLabel.setForeground(Color.RED);
+		} else {
+			compileLabel.setForeground(Color.BLACK);
 		}
 	}
 
@@ -604,6 +782,17 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	private void clearBoxes() {
+		for (int count = 0; count < 30; count++) {
+			JLabel intLabel = (JLabel) boxes.get(count).getComponents()[0];
+			JLabel charLabel = (JLabel) boxes.get(count).getComponents()[1];
+			JButton button = (JButton) boxes.get(count).getComponents()[2];
+			intLabel.setText("int:");
+			charLabel.setText("char:");
+			button.setForeground(Color.BLACK);
+		}
+	}
+
 	private String replaceMethod(String code) {
 		try {
 			Map<String, String> methodMap = RemoteHelper.getInstance().getUserService().getUserMethodMap(userName);
@@ -614,5 +803,55 @@ public class MainFrame extends JFrame {
 			ex.printStackTrace();
 		}
 		return code;
+	}
+
+	private void setMemoryCell() {
+		int count = 0;
+		for (MemoryCell memoryCell : memorycells) {
+			if (count >= 30) {
+				break;
+			}
+			JLabel intLabel = (JLabel) boxes.get(count).getComponents()[0];
+			JLabel charLabel = (JLabel) boxes.get(count).getComponents()[1];
+			intLabel.setText("int:" + String.valueOf(memoryCell.getValue()));
+			charLabel.setText("char:" + memoryCell.getValueInChar());
+			count++;
+		}
+	}
+
+	private void setMark() {
+		String first = codeTextPane.getText().substring(0, compiler.getProgramCounter());
+		String second = codeTextPane.getText().substring(compiler.getProgramCounter());
+		codeTextPane.setText(first + "(^now^)" + second);
+	}
+
+	private void removeMark() {
+		System.out.println("new:" + codeTextPane.getText().replaceAll("\\(\\^now\\^\\)", ""));
+		codeTextPane.setText(codeTextPane.getText().replaceAll("\\(\\^now\\^\\)", ""));
+	}
+
+	public void setMenuEnable() {
+		saveMenuItem.setEnabled(true);
+		versionMenu.setEnabled(true);
+		codeMenu.setEnabled(true);
+	}
+	public boolean getSaveFlag(){
+		return saveFlag;
+	}
+	public void changeSaveFlag(){
+		saveFlag=true;
+	}
+	private void setConciseView(){
+		visiablePanel.setVisible(false);
+		leaderPanel.setDividerSize(0);
+		outerPanel.setDividerLocation(400);
+		innerPanel.setDividerLocation(350);
+		frame.setSize(700, 600);
+		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
+		leaderPanel.repaint();
+		visiablePanel.repaint();
+		outerPanel.repaint();
+		innerPanel.repaint();
+		frame.repaint();
 	}
 }

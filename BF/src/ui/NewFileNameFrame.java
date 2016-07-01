@@ -15,6 +15,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
@@ -22,6 +23,8 @@ import javax.swing.border.TitledBorder;
 import rmi.RemoteHelper;
 import service.IOService;
 import serviceToolKit.ReadFileListInFullName;
+import serviceToolKit.WriteFileInNewestVersion;
+import serviceToolKit.WriteFileWithIDAndFileName;
 import toolKit.FileName;
 
 public class NewFileNameFrame {
@@ -50,8 +53,10 @@ public class NewFileNameFrame {
 		//
 		Box box = new Box(BoxLayout.Y_AXIS);
 		//
+		JPanel panel0 = new JPanel();
 		JLabel promoteLabel = new JLabel("请输入要新建的文件名，其中不得包含“/”字符");
 		promoteLabel.setForeground(Color.BLUE);
+		panel0.add(promoteLabel);
 		//
 		JPanel panel1 = new JPanel();
 		JLabel label1 = new JLabel("FileName:");
@@ -68,12 +73,14 @@ public class NewFileNameFrame {
 		panel2.add(createButton);
 		panel2.add(cancelButton);
 		//
+		JPanel panel3 = new JPanel();
 		warningLabel = new JLabel();
 		warningLabel.setForeground(Color.RED);
+		panel3.add(warningLabel);
 		//
-		box.add(promoteLabel);
+		box.add(panel0);
 		box.add(panel1);
-		box.add(warningLabel);
+		box.add(panel3);
 		box.add(panel2);
 		//
 		backgroundPanel.add(box);
@@ -89,50 +96,63 @@ public class NewFileNameFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// 检查是否有重名文件
-			String fileNames = "";
-			try {
-				IOService ioService = RemoteHelper.getInstance().getIOService();
-				ioService.setReadFileListMethod(new ReadFileListInFullName());
-				fileNames = ioService.readFileList(userID, "");
-			} catch (Exception ex) {
-				// TODO: handle exception
-				ex.printStackTrace();
-			}
-			// 防御性编程
-			if (fileNameArea.getText().length() == 0) {
-				warningLabel.setText("文件名不能为空，请重新输入文件名");
-				return;
-			}
-			for (char c : fileNameArea.getText().toCharArray()) {
-				if (c == '/') {
-					warningLabel.setText("文件名包含非法字符，请重新输入文件名");
+			if (mainFrame.getSaveFlag()
+					|| JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				String fileNames = "";
+				try {
+					IOService ioService = RemoteHelper.getInstance().getIOService();
+					ioService.setReadFileListMethod(new ReadFileListInFullName());
+					fileNames = ioService.readFileList(userID, "");
+				} catch (Exception ex) {
+					// TODO: handle exception
+					ex.printStackTrace();
+				}
+				// 防御性编程
+				if (fileNameArea.getText().length() == 0) {
+					warningLabel.setText("文件名不能为空，请重新输入文件名");
+					frame.pack();
 					return;
 				}
-			}
-			if (!fileNames.equals("")) {
-				for (String fileName : fileNames.split("/")) {
-					if (fileName.split("_")[1].equals(fileNameArea.getText())) {
-						warningLabel.setText("文件名重复，请重新输入文件名");
+				for (char c : fileNameArea.getText().toCharArray()) {
+					if (c == '/') {
+						warningLabel.setText("文件名包含非法字符，请重新输入文件名");
+						frame.pack();
 						return;
 					}
 				}
+				if (!fileNames.equals("")) {
+					for (String fileName : fileNames.split("/")) {
+						if (fileName.split("_")[1].equals(fileNameArea.getText())) {
+							warningLabel.setText("文件名重复，请重新输入文件名");
+							frame.pack();
+							return;
+						}
+					}
+				}
+				// System.out.println(fileNames);
+				fileName.setFileName(fileNameArea.getText());
+				Calendar calendar = Calendar.getInstance();
+				try {
+					String name = fileName.getFileName() + "_1_" + String.valueOf(calendar.get(Calendar.YEAR)) + "-"
+							+ String.valueOf(calendar.get(Calendar.MONTH) + 1) + "-"
+							+ String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + "~"
+							+ String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)) + "-"
+							+ String.valueOf(calendar.get(Calendar.MINUTE)) + "-"
+							+ String.valueOf(calendar.get(Calendar.SECOND));
+					System.out.println("sajkfgashgqw:" + mainFrame.getUserName());
+					IOService ioService = RemoteHelper.getInstance().getIOService();
+					ioService.setWriteFileMethod(new WriteFileWithIDAndFileName());
+					ioService.writeFile("", mainFrame.getUserName(), name);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				mainFrame.setTitle("BF Client--" + fileName);
+				mainFrame.setEnable();
+				mainFrame.setMenuEnable();
+				mainFrame.changeSaveFlag();
+				frame.dispose();
 			}
-			System.out.println(fileNames);
-			fileName.setFileName(fileNameArea.getText());
-			Calendar calendar = Calendar.getInstance();
-			try {
-				String name = fileName.getFileName() + "_1_" + String.valueOf(calendar.get(Calendar.YEAR)) + "-"
-						+ String.valueOf(calendar.get(Calendar.MONTH) + 1) + "-"
-						+ String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + "~"
-						+ String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)) + "-"
-						+ String.valueOf(calendar.get(Calendar.MINUTE)) + "-"
-						+ String.valueOf(calendar.get(Calendar.SECOND));
-				RemoteHelper.getInstance().getIOService().writeFile("", mainFrame.getUserName(), name);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			mainFrame.setEnable();
-			frame.dispose();
 		}
 	}
 

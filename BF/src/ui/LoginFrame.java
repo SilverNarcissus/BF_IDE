@@ -38,31 +38,33 @@ public class LoginFrame {
 		panel2.add(label2);
 		panel2.add(passwordField);
 		//
-		JPanel panel3 = new JPanel();
+		JPanel panel4 = new JPanel();
 		JButton createButton = new JButton("创建新用户");
 		createButton.addActionListener(new CreateListener());
 		JButton loginButton = new JButton("登录");
 		loginButton.addActionListener(new LoginListener());
 		JButton cancelButton = new JButton("退出");
 		cancelButton.addActionListener(new CancelListener());
-		panel3.add(createButton);
-		panel3.add(loginButton);
-		panel3.add(cancelButton);
+		panel4.add(createButton);
+		panel4.add(loginButton);
+		panel4.add(cancelButton);
 		//
+		JPanel panel3 = new JPanel();
 		warningLabel= new JLabel("");
 		warningLabel.setForeground(Color.red);
+		panel3.add(warningLabel);
 		//
 		Box box = new Box(BoxLayout.Y_AXIS);
 		box.add(panel1);
 		box.add(panel2);
-		box.add(warningLabel);
 		box.add(panel3);
+		box.add(panel4);
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
+		frame.pack();
 		frame.setLocation(width/2-frame.getWidth()/2,height/2-frame.getHeight()/2-50);
 		frame.setVisible(true);
-
 	}
 
 	class CreateListener implements ActionListener {
@@ -90,6 +92,7 @@ public class LoginFrame {
 				// TODO: handle exception
 				ex.printStackTrace();
 			}
+			frame.pack();
 		}
 	}
 

@@ -54,13 +54,14 @@ public class ShowMethodFrame {
 			ex.printStackTrace();
 		}
 		//
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton("返回");
 		cancelButton.addActionListener(new CancelListener());
 		//
 		backgroundPanel.add(scrollPane, BorderLayout.CENTER);
 		backgroundPanel.add(cancelButton,BorderLayout.SOUTH);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
+		frame.pack();
 		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
 	}

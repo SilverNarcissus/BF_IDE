@@ -20,13 +20,18 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
+import fileHelper.FileName;
+import ioMethod.ReadFileListInFullName;
+import ioMethod.WriteFileInNewestVersion;
+import ioMethod.WriteFileWithIDAndFileName;
 import rmi.RemoteHelper;
 import service.IOService;
-import serviceToolKit.ReadFileListInFullName;
-import serviceToolKit.WriteFileInNewestVersion;
-import serviceToolKit.WriteFileWithIDAndFileName;
-import toolKit.FileName;
 
+/**
+ * 新建文件面板
+ * 
+ * @author SilverNarcissus
+ */
 public class NewFileNameFrame {
 	private JFrame frame;
 	private JTextArea fileNameArea;
@@ -35,6 +40,11 @@ public class NewFileNameFrame {
 	private String userID;
 	private MainFrame mainFrame;
 
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public NewFileNameFrame(FileName fileName, String userID, MainFrame mainFrame) {
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int) screensize.getWidth();
@@ -92,6 +102,11 @@ public class NewFileNameFrame {
 		frame.setAlwaysOnTop(true);
 	}
 
+	/**
+	 * 新建按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CreateListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -156,6 +171,11 @@ public class NewFileNameFrame {
 		}
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override

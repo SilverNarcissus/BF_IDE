@@ -21,6 +21,11 @@ import javax.swing.border.TitledBorder;
 
 import rmi.RemoteHelper;
 
+/**
+ * 新建方法的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class NewMethodFrame {
 	private String userName;
 	private JTextArea methodName;
@@ -28,8 +33,14 @@ public class NewMethodFrame {
 	private JFrame frame;
 	private JLabel warningLabel;
 	private JPanel panel3;
+
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public NewMethodFrame(String userName) {
-		this.userName=userName;
+		this.userName = userName;
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int) screensize.getWidth();
 		int height = (int) screensize.getHeight();
@@ -87,19 +98,24 @@ public class NewMethodFrame {
 
 	}
 
+	/**
+	 * 保存按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class SaveListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JButton button=(JButton)e.getSource();
-			//判断是否完成
-			if(button.getText().equals("完成")){
+			JButton button = (JButton) e.getSource();
+			// 判断是否完成
+			if (button.getText().equals("完成")) {
 				frame.dispose();
 			}
 			//
 			try {
 				String name = methodName.getText();
-				//检查函数是否重名
+				// 检查函数是否重名
 				if (RemoteHelper.getInstance().getUserService().getUserMethodMap(userName).containsKey(name)) {
 					warningLabel.setText("有重名的函数");
 					warningLabel.setForeground(Color.RED);
@@ -119,6 +135,11 @@ public class NewMethodFrame {
 		}
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override

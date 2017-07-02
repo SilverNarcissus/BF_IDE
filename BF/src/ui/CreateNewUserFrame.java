@@ -19,6 +19,11 @@ import javax.swing.JTextArea;
 
 import rmi.RemoteHelper;
 
+/**
+ * 新建用户的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class CreateNewUserFrame {
 	private JLabel wrongLabel;
 	private JTextArea userNameArea;
@@ -27,10 +32,15 @@ public class CreateNewUserFrame {
 	private JFrame frame;
 	private JPanel panel5;
 
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public CreateNewUserFrame() {
-		Dimension   screensize   =   Toolkit.getDefaultToolkit().getScreenSize();
-		int width = (int)screensize.getWidth();
-		int height = (int)screensize.getHeight();
+		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+		int width = (int) screensize.getWidth();
+		int height = (int) screensize.getHeight();
 		frame = new JFrame("CreateNewUser");
 		frame.setLayout(new BorderLayout());
 		JPanel backgroundPanel = new JPanel();
@@ -85,18 +95,23 @@ public class CreateNewUserFrame {
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
-		frame.setLocation(width/2-frame.getWidth()/2,height/2-frame.getHeight()/2-50);
+		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.pack();
 		frame.setVisible(true);
 	}
 
+	/**
+	 * 新建按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CreateListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//完成的情况
-			JButton button=(JButton)e.getSource();
-			if(button.getText().equals("完成")){
+			// 完成的情况
+			JButton button = (JButton) e.getSource();
+			if (button.getText().equals("完成")) {
 				new LoginFrame();
 				frame.dispose();
 			}
@@ -128,6 +143,19 @@ public class CreateNewUserFrame {
 					panel5.remove(1);
 					button.setText("完成");
 					frame.pack();
+					Thread thread=new Thread(){
+						public void run(){
+							try {
+								Thread.sleep(1000);
+								frame.dispose();
+								new LoginFrame();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					};
+					thread.start();
 					return;
 				} else {
 					wrongLabel.setText("用户名已存在");
@@ -141,6 +169,11 @@ public class CreateNewUserFrame {
 		}
 	}
 
+	/**
+	 * 返回按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class BackListener implements ActionListener {
 
 		@Override

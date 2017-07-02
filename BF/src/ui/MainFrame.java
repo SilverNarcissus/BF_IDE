@@ -33,17 +33,20 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import compiler.*;
+import compiler.Compiler;
+import fileHelper.FileName;
+import ioMethod.WriteFileInNewestVersion;
 import rmi.RemoteHelper;
 import service.IOService;
-import serviceToolKit.WriteFileInNewestVersion;
-import toolKit.*;
-import toolKit.Compiler;
 
+/**
+ * 主要面板，包含各个分功能面板
+ * 
+ * @author SilverNarcissus
+ */
 public class MainFrame extends JFrame {
 
-	/**
-	 * 
-	 */
 	private JLabel compileLabel;
 	private int pointer;
 	private ArrayList<MemoryCell> memorycells;
@@ -74,8 +77,13 @@ public class MainFrame extends JFrame {
 	private JMenuItem saveMenuItem;
 	private JMenu versionMenu;
 	private JMenu codeMenu;
-	private boolean saveFlag=true;
+	private boolean saveFlag = true;
 
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public MainFrame(String userName) {
 		// 一些初始化
 		memorycells = new ArrayList<MemoryCell>();
@@ -330,6 +338,11 @@ public class MainFrame extends JFrame {
 		setConciseView();
 	}
 
+	/**
+	 * 菜单按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class MenuItemActionListener implements ActionListener {
 		/**
 		 * 子菜单响应事件
@@ -351,7 +364,7 @@ public class MainFrame extends JFrame {
 			case "Save":
 				String code = codeTextPane.getText();
 				saveFlag = true;
-				try {
+				 try {
 					IOService ioService = RemoteHelper.getInstance().getIOService();
 					ioService.setWriteFileMethod(new WriteFileInNewestVersion());
 					ioService.writeFile(code, userName, fileName.getFileName());
@@ -381,19 +394,20 @@ public class MainFrame extends JFrame {
 			case "Version":
 				revokeStack = new Stack<String>();
 				redoStack = new Stack<String>();
-				new ShowVersionFrame(fileName, userName, codeTextPane, frame,mainFrame);
+				new ShowVersionFrame(fileName, userName, codeTextPane, frame, mainFrame);
 				newFlag = true;
 				clearBoxes();
 				compiler.initialize();
 				pointer = compiler.getPointer();
 				break;
 			case "Revoke":
+				if (!revoke) {
+					redoStack.push(revokeStack.pop());
+					revoke = true;
+				}
 				if (!((revokeStack.size() == 1 && !revoke) || revokeStack.empty())) {
+					System.out.println("in");
 					redo = false;
-					if (!revoke) {
-						redoStack.push(revokeStack.pop());
-						revoke = true;
-					}
 					String temp1 = revokeStack.pop();
 					codeTextPane.setText(temp1);
 					redoStack.push(temp1);
@@ -484,27 +498,14 @@ public class MainFrame extends JFrame {
 				break;
 			case "CompleteView":
 				// System.out.println("!!!");
-				frame.setSize(1100, 650);
-				frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
-				leaderPanel.setDividerLocation(700);
-				leaderPanel.setDividerSize(3);
-				visiablePanel.setDividerLocation(450);
-				outerPanel.setDividerLocation(450);
-				innerPanel.setDividerLocation(350);
-				visiablePanel.setVisible(true);
-				innerPanel.setVisible(true);
-				leaderPanel.repaint();
-				visiablePanel.repaint();
-				outerPanel.repaint();
-				innerPanel.repaint();
-				frame.repaint();
+				completeView();
 				break;
 			case "ConciseView":
 				setConciseView();
 				break;
 			case "Logout":
-				if (saveFlag||JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
-						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				if (saveFlag || JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?",
+						"Prompt", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 					frame.dispose();
 					new LoginFrame();
 				}
@@ -513,30 +514,56 @@ public class MainFrame extends JFrame {
 				break;
 			}
 		}
+
+		/**
+		 * @param code
+		 * @param x
+		 * @return
+		 */
 	}
 
+	/**
+	 * 设定编辑区的可编辑性
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public void setEnable() {
 		codeTextPane.setEditable(true);
 		codeTextPane.setBackground(Color.WHITE);
 	}
 
+	/**
+	 * 返回用户的名字
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public String getUserName() {
 		return userName;
 	}
 
+	/**
+	 * 撤销重做的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class RevokeListener implements KeyListener {
 
 		@Override
 		public void keyTyped(KeyEvent e) {
 			// TODO Auto-generated method stub
+			// saveFlag = false;
+			revoke = false;
+			// revokeStack.push(codeTextPane.getText());
+			//
 		}
 
 		@Override
 		public void keyPressed(KeyEvent e) {
 			// TODO Auto-generated method stub
+			revoke = false;
 			if (newFlag) {
 				saveFlag = false;
-				revokeStack.push(codeTextPane.getText());
+				// revokeStack.push(codeTextPane.getText());
 				newFlag = false;
 			}
 		}
@@ -551,7 +578,11 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	// 实时编译策略
+	/**
+	 * 实时编译策略
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private String compile(String code, String param) {
 		// TODO Auto-generated method stub
 		String out = "";
@@ -627,6 +658,11 @@ public class MainFrame extends JFrame {
 		return out;
 	}
 
+	/**
+	 * 实时编译策略中的右移
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private int rightShift(int programCounter, String code) {
 		int count = 0;
 		for (int i = programCounter + 1; i < code.length(); i++) {
@@ -644,6 +680,11 @@ public class MainFrame extends JFrame {
 		return -1;
 	}
 
+	/**
+	 * 实时编译策略中的左移
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private int liftShift(int programCounter, String code) {
 		int count = 0;
 		for (int i = programCounter - 1; i >= 0; i--) {
@@ -661,6 +702,11 @@ public class MainFrame extends JFrame {
 		return -1;
 	}
 
+	/**
+	 * 编译按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CompileListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -677,6 +723,11 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * 辅助按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class AssistantListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -738,6 +789,11 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * 移动内存位置按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class MoveListener implements ActionListener {
 
 		@Override
@@ -763,6 +819,11 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * 改变编译提示板的颜色
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void changeCompilerLabelColor() {
 		if (compileLabel.getText().contains("编译错误") || compileLabel.getText().contains("运行错误")) {
 			compileLabel.setForeground(Color.RED);
@@ -771,6 +832,11 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * 改变可视化编程的位置状态
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void changeDisplay() {
 		for (Box eachBox : boxes) {
 			MemoryCellButton memoryCellButoon = (MemoryCellButton) eachBox.getComponent(2);
@@ -782,6 +848,11 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * 清空可视化面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void clearBoxes() {
 		for (int count = 0; count < 30; count++) {
 			JLabel intLabel = (JLabel) boxes.get(count).getComponents()[0];
@@ -793,6 +864,11 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * 替换用户方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private String replaceMethod(String code) {
 		try {
 			Map<String, String> methodMap = RemoteHelper.getInstance().getUserService().getUserMethodMap(userName);
@@ -805,6 +881,11 @@ public class MainFrame extends JFrame {
 		return code;
 	}
 
+	/**
+	 * 设定可视化编程的内存区域
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void setMemoryCell() {
 		int count = 0;
 		for (MemoryCell memoryCell : memorycells) {
@@ -819,35 +900,85 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * Debug模式中设定指针位置
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void setMark() {
 		String first = codeTextPane.getText().substring(0, compiler.getProgramCounter());
 		String second = codeTextPane.getText().substring(compiler.getProgramCounter());
 		codeTextPane.setText(first + "(^now^)" + second);
 	}
 
+	/**
+	 * Debug模式中更改指针位置
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void removeMark() {
 		System.out.println("new:" + codeTextPane.getText().replaceAll("\\(\\^now\\^\\)", ""));
 		codeTextPane.setText(codeTextPane.getText().replaceAll("\\(\\^now\\^\\)", ""));
 	}
 
+	/**
+	 * 设定菜单可编辑性
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public void setMenuEnable() {
 		saveMenuItem.setEnabled(true);
 		versionMenu.setEnabled(true);
 		codeMenu.setEnabled(true);
 	}
-	public boolean getSaveFlag(){
+
+	/**
+	 * 获取文件的保存状态
+	 * 
+	 * @author SilverNarcissus
+	 */
+	public boolean getSaveFlag() {
 		return saveFlag;
 	}
-	public void changeSaveFlag(){
-		saveFlag=true;
+
+	/**
+	 * 改变文件的保存状态
+	 * 
+	 * @author SilverNarcissus
+	 */
+	public void changeSaveFlag() {
+		saveFlag = true;
 	}
-	private void setConciseView(){
+
+	/**
+	 * 设定简洁模式
+	 * 
+	 * @author SilverNarcissus
+	 */
+	private void setConciseView() {
 		visiablePanel.setVisible(false);
 		leaderPanel.setDividerSize(0);
 		outerPanel.setDividerLocation(400);
 		innerPanel.setDividerLocation(350);
 		frame.setSize(700, 600);
 		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
+		leaderPanel.repaint();
+		visiablePanel.repaint();
+		outerPanel.repaint();
+		innerPanel.repaint();
+		frame.repaint();
+	}
+
+	private void completeView() {
+		frame.setSize(1100, 650);
+		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
+		leaderPanel.setDividerLocation(700);
+		leaderPanel.setDividerSize(3);
+		visiablePanel.setDividerLocation(450);
+		outerPanel.setDividerLocation(450);
+		innerPanel.setDividerLocation(350);
+		visiablePanel.setVisible(true);
+		innerPanel.setVisible(true);
 		leaderPanel.repaint();
 		visiablePanel.repaint();
 		outerPanel.repaint();

@@ -7,16 +7,26 @@ import javax.swing.*;
 
 import rmi.RemoteHelper;
 
+/**
+ * 用于登录的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class LoginFrame {
-	JTextArea userNameArea;
-	JPasswordField passwordField;
-	JFrame frame;
-	JLabel warningLabel;
+	private JTextArea userNameArea;
+	private JPasswordField passwordField;
+	private JFrame frame;
+	private JLabel warningLabel;
 
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public LoginFrame() {
-		Dimension   screensize   =   Toolkit.getDefaultToolkit().getScreenSize();
-		int width = (int)screensize.getWidth();
-		int height = (int)screensize.getHeight();
+		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+		int width = (int) screensize.getWidth();
+		int height = (int) screensize.getHeight();
 		System.out.println(width);
 		System.out.println(height);
 		frame = new JFrame("Login");
@@ -38,33 +48,40 @@ public class LoginFrame {
 		panel2.add(label2);
 		panel2.add(passwordField);
 		//
-		JPanel panel3 = new JPanel();
+		JPanel panel4 = new JPanel();
 		JButton createButton = new JButton("创建新用户");
 		createButton.addActionListener(new CreateListener());
 		JButton loginButton = new JButton("登录");
 		loginButton.addActionListener(new LoginListener());
 		JButton cancelButton = new JButton("退出");
 		cancelButton.addActionListener(new CancelListener());
-		panel3.add(createButton);
-		panel3.add(loginButton);
-		panel3.add(cancelButton);
+		panel4.add(createButton);
+		panel4.add(loginButton);
+		panel4.add(cancelButton);
 		//
-		warningLabel= new JLabel("");
+		JPanel panel3 = new JPanel();
+		warningLabel = new JLabel("");
 		warningLabel.setForeground(Color.red);
+		panel3.add(warningLabel);
 		//
 		Box box = new Box(BoxLayout.Y_AXIS);
 		box.add(panel1);
 		box.add(panel2);
-		box.add(warningLabel);
 		box.add(panel3);
+		box.add(panel4);
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
-		frame.setLocation(width/2-frame.getWidth()/2,height/2-frame.getHeight()/2-50);
+		frame.pack();
+		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
-
 	}
 
+	/**
+	 * 新建按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CreateListener implements ActionListener {
 
 		@Override
@@ -74,6 +91,11 @@ public class LoginFrame {
 		}
 	}
 
+	/**
+	 * 登录按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class LoginListener implements ActionListener {
 
 		@Override
@@ -84,20 +106,26 @@ public class LoginFrame {
 					frame.dispose();
 					new MainFrame(userNameArea.getText());
 				} else {
-                warningLabel.setText("用户名不存在或密码错误，请重试");
+					warningLabel.setText("用户名不存在或密码错误，请重试");
 				}
 			} catch (Exception ex) {
 				// TODO: handle exception
 				ex.printStackTrace();
 			}
+			frame.pack();
 		}
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-          frame.dispose();
+			frame.dispose();
 		}
 	}
 }

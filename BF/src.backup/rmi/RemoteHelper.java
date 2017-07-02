@@ -4,7 +4,11 @@ import java.rmi.Remote;
 import service.ExecuteService;
 import service.IOService;
 import service.UserService;
-
+/**
+ * 用于实现RMI的类
+ * 
+ * @author SilverNarcissus
+ */
 public class RemoteHelper {
 	private Remote remote;
 	private static RemoteHelper remoteHelper = new RemoteHelper();

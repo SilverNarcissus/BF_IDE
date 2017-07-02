@@ -7,7 +7,11 @@ import java.rmi.RemoteException;
 
 import rmi.RemoteHelper;
 import ui.LoginFrame;
-
+/**
+ * 客户端执行起点
+ * 
+ * @author SilverNarcissus
+ */
 public class ClientRunner {
 	private RemoteHelper remoteHelper;
 	

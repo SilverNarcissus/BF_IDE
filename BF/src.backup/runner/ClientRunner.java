@@ -6,10 +6,12 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import rmi.RemoteHelper;
-import service.IOService;
 import ui.LoginFrame;
-import ui.*;
-
+/**
+ * 客户端执行起点
+ * 
+ * @author SilverNarcissus
+ */
 public class ClientRunner {
 	private RemoteHelper remoteHelper;
 	

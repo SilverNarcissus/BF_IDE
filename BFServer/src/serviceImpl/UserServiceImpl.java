@@ -8,16 +8,24 @@ import java.rmi.RemoteException;
 import java.util.Map;
 
 import service.UserService;
-import serviceToolKit.UserInformation;
-import serviceToolKit.UserManager;
-
+import userInfomation.UserInformation;
+import userInfomation.UserManager;
+/**
+ * 登录登出接口的实例
+ * 
+ * @author SilverNarcissus
+ */
 public class UserServiceImpl implements UserService {
 	UserManager userManager;
 
 	public UserServiceImpl() {
 		userManager = loadUserInformation();
 	}
-
+	/**
+	 * 新注册用户的方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	@Override
 	public boolean creatNewUser(String userName, String password) throws RemoteException {
 		if (userManager.getUserInfomation(userName) == null) {
@@ -27,7 +35,11 @@ public class UserServiceImpl implements UserService {
 		}
 		return false;
 	};
-
+	/**
+	 * 登录方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	@Override
 	public boolean login(String userName, String password) throws RemoteException {
 		if (userManager.getUserInfomation(userName) != null) {
@@ -39,12 +51,20 @@ public class UserServiceImpl implements UserService {
 		}
 		return false;
 	}
-
+	/**
+	 * 登出方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	@Override
 	public boolean logout(String username) throws RemoteException {
 		return true;
 	}
-
+	/**
+	 * 得到用户方法列表的方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	@Override
 	public Map<String, String> getUserMethodMap(String userName) throws RemoteException {
 		if (userManager.getUserInfomation(userName) != null) {
@@ -53,7 +73,11 @@ public class UserServiceImpl implements UserService {
 			return null;
 		}
 	}
-
+	/**
+	 * 更改用户方法表的方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	@Override
 	public boolean removeUserMethodMap(String userName, String methodName) throws RemoteException{
 		if (userManager.getUserInfomation(userName) != null) {
@@ -64,7 +88,11 @@ public class UserServiceImpl implements UserService {
 			return false;
 		}
 	}
-
+	/**
+	 * 添加用户方法表的方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	@Override
 	public boolean putUserMethodMap(String userName, String methodName, String code) throws RemoteException {
 		if (userManager.getUserInfomation(userName) != null) {
@@ -75,7 +103,11 @@ public class UserServiceImpl implements UserService {
 			return false;
 		}
 	}
-
+	/**
+	 * 储存用户信息的方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void saveUserInformation(UserManager userManager) {
 		try {
 			FileOutputStream fileOutputStream = new FileOutputStream("UserInformation.ser");
@@ -86,7 +118,11 @@ public class UserServiceImpl implements UserService {
 			ex.printStackTrace();
 		}
 	}
-
+	/**
+	 * 读取用户信息方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private UserManager loadUserInformation() {
 		UserManager userManager = new UserManager();
 		try {

@@ -24,7 +24,11 @@ import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 import rmi.RemoteHelper;
 
-
+/**
+ * 用于更改方法设定的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class ChangeMethodFrame {
 	private String userName;
 	private JComboBox<String> methodName;
@@ -104,7 +108,11 @@ public class ChangeMethodFrame {
 		frame.setVisible(true);
 
 	}
-
+	/**
+	 * 更改按钮监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class ChangeListener implements ActionListener {
 
 		@Override
@@ -126,7 +134,11 @@ public class ChangeMethodFrame {
 			replaceJComboBox();
 		}
 	}
-
+	/**
+	 * 删除按钮监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class RemoveListener implements ActionListener {
 
 		@Override
@@ -147,7 +159,11 @@ public class ChangeMethodFrame {
 			replaceJComboBox();
 		}
 	}
-
+	/**
+	 * 取消按钮监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override
@@ -155,7 +171,11 @@ public class ChangeMethodFrame {
 			frame.dispose();
 		}
 	}
-
+	/**
+	 * 方法名选取改变监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class ComboItemListener implements ItemListener {
 
 		@Override
@@ -171,6 +191,11 @@ public class ChangeMethodFrame {
 			}
 		}
 	}
+	/**
+	 * 替换方法列表的方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void replaceJComboBox(){
 		methodName.removeAllItems();
 		try {

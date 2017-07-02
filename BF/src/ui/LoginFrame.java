@@ -7,16 +7,26 @@ import javax.swing.*;
 
 import rmi.RemoteHelper;
 
+/**
+ * 用于登录的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class LoginFrame {
-	JTextArea userNameArea;
-	JPasswordField passwordField;
-	JFrame frame;
-	JLabel warningLabel;
+	private JTextArea userNameArea;
+	private JPasswordField passwordField;
+	private JFrame frame;
+	private JLabel warningLabel;
 
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public LoginFrame() {
-		Dimension   screensize   =   Toolkit.getDefaultToolkit().getScreenSize();
-		int width = (int)screensize.getWidth();
-		int height = (int)screensize.getHeight();
+		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+		int width = (int) screensize.getWidth();
+		int height = (int) screensize.getHeight();
 		System.out.println(width);
 		System.out.println(height);
 		frame = new JFrame("Login");
@@ -50,7 +60,7 @@ public class LoginFrame {
 		panel4.add(cancelButton);
 		//
 		JPanel panel3 = new JPanel();
-		warningLabel= new JLabel("");
+		warningLabel = new JLabel("");
 		warningLabel.setForeground(Color.red);
 		panel3.add(warningLabel);
 		//
@@ -63,10 +73,15 @@ public class LoginFrame {
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
 		frame.pack();
-		frame.setLocation(width/2-frame.getWidth()/2,height/2-frame.getHeight()/2-50);
+		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
 	}
 
+	/**
+	 * 新建按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CreateListener implements ActionListener {
 
 		@Override
@@ -76,6 +91,11 @@ public class LoginFrame {
 		}
 	}
 
+	/**
+	 * 登录按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class LoginListener implements ActionListener {
 
 		@Override
@@ -86,7 +106,7 @@ public class LoginFrame {
 					frame.dispose();
 					new MainFrame(userNameArea.getText());
 				} else {
-                warningLabel.setText("用户名不存在或密码错误，请重试");
+					warningLabel.setText("用户名不存在或密码错误，请重试");
 				}
 			} catch (Exception ex) {
 				// TODO: handle exception
@@ -96,11 +116,16 @@ public class LoginFrame {
 		}
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-          frame.dispose();
+			frame.dispose();
 		}
 	}
 }

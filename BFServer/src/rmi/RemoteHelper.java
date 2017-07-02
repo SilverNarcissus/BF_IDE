@@ -5,7 +5,11 @@ import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-
+/**
+ * 用于指定连接IP,端口的类
+ * 
+ * @author SilverNarcissus
+ */
 public class RemoteHelper {
 	public RemoteHelper(){
 		initServer();

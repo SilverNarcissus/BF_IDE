@@ -23,12 +23,17 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import fileHelper.FileName;
+import ioMethod.ReadFileListShowingVersion;
+import ioMethod.ReadFileWithUserIDAndFileName;
 import rmi.RemoteHelper;
 import service.IOService;
-import serviceToolKit.ReadFileListShowingVersion;
-import serviceToolKit.ReadFileWithUserIDAndFileName;
-import toolKit.FileName;
 
+/**
+ * 展示版本的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class ShowVersionFrame {
 	private FileName fileName;
 	private String userID;
@@ -39,8 +44,14 @@ public class ShowVersionFrame {
 	private JFrame mainFrame;
 	private MainFrame mainFrame2;
 
-	public ShowVersionFrame(FileName fileName, String userID, CodeTextPanel textArea, JFrame mainFrame,MainFrame mainFrame2) {
-		this.mainFrame2=mainFrame2;
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
+	public ShowVersionFrame(FileName fileName, String userID, CodeTextPanel textArea, JFrame mainFrame,
+			MainFrame mainFrame2) {
+		this.mainFrame2 = mainFrame2;
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int) screensize.getWidth();
 		int height = (int) screensize.getHeight();
@@ -125,6 +136,11 @@ public class ShowVersionFrame {
 		promoteLabel.setLocation(frame.getWidth() + 10, frame.getHeight() + 20);
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override
@@ -133,12 +149,18 @@ public class ShowVersionFrame {
 		}
 	}
 
+	/**
+	 * 读取按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class LoadListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (mainFrame2.getSaveFlag()||JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
-					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			if (mainFrame2.getSaveFlag()
+					|| JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				String fileName = fileList.getSelectedValue();
 				System.out.println(fileName);
 				if (fileName == null || fileName == "<空>") {

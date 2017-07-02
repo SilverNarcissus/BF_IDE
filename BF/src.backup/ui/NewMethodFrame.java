@@ -21,15 +21,26 @@ import javax.swing.border.TitledBorder;
 
 import rmi.RemoteHelper;
 
+/**
+ * 新建方法的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class NewMethodFrame {
 	private String userName;
 	private JTextArea methodName;
 	private JTextArea codeArea;
 	private JFrame frame;
 	private JLabel warningLabel;
+	private JPanel panel3;
 
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public NewMethodFrame(String userName) {
-		this.userName=userName;
+		this.userName = userName;
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int) screensize.getWidth();
 		int height = (int) screensize.getHeight();
@@ -60,45 +71,63 @@ public class NewMethodFrame {
 		panel2.add(label2);
 		panel2.add(scrollPane);
 		//
-		JPanel panel3 = new JPanel();
-		JButton saveButton = new JButton("Save");
+		panel3 = new JPanel();
+		JButton saveButton = new JButton("保存");
 		saveButton.addActionListener(new SaveListener());
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton("取消");
 		cancelButton.addActionListener(new CancelListener());
 		panel3.add(saveButton);
 		panel3.add(cancelButton);
 		//
+		JPanel panel4 = new JPanel();
 		warningLabel = new JLabel("");
 		warningLabel.setForeground(Color.red);
+		panel4.add(warningLabel);
 		//
 		Box box = new Box(BoxLayout.Y_AXIS);
 		box.add(panel1);
 		box.add(panel2);
-		box.add(warningLabel);
+		box.add(panel4);
 		box.add(panel3);
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
 		frame.setSize(300, 200);
+		frame.pack();
 		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
 
 	}
 
+	/**
+	 * 保存按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class SaveListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			JButton button = (JButton) e.getSource();
+			// 判断是否完成
+			if (button.getText().equals("完成")) {
+				frame.dispose();
+			}
+			//
 			try {
 				String name = methodName.getText();
-				//检查函数是否重名
+				// 检查函数是否重名
 				if (RemoteHelper.getInstance().getUserService().getUserMethodMap(userName).containsKey(name)) {
-					warningLabel.setText("Duplicate Definition!");
+					warningLabel.setText("有重名的函数");
 					warningLabel.setForeground(Color.RED);
+					frame.pack();
 					return;
 				}
 				RemoteHelper.getInstance().getUserService().putUserMethodMap(userName, name, codeArea.getText());
 				warningLabel.setForeground(Color.BLUE);
-				warningLabel.setText("Success");
+				warningLabel.setText("方法创建成功");
+				panel3.remove(1);
+				button.setText("完成");
+				frame.pack();
 			} catch (Exception ex) {
 				// TODO: handle exception
 				ex.printStackTrace();
@@ -106,6 +135,11 @@ public class NewMethodFrame {
 		}
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override

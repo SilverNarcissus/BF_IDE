@@ -17,29 +17,40 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import fileHelper.FileName;
+import ioMethod.ReadFileInNewestVersion;
+import ioMethod.ReadFileListInOnlyFileName;
 import rmi.RemoteHelper;
 import service.IOService;
-import serviceToolKit.ReadFileInNewestVersion;
-import serviceToolKit.ReadFileListInOnlyFileName;
-import toolKit.FileName;
 
+/**
+ * 打开文件的方法
+ * 
+ * @author SilverNarcissus
+ */
 public class OpenFrame {
 	private FileName fileName;
 	private String userID;
 	private JList<String> fileList;
 	private JLabel warningLabel;
 	private JFrame frame;
-	private JTextArea textArea;
+	private CodeTextPanel textArea;
 	private JFrame mainFrame;
+	private MainFrame mainFrame2;
 
-	public OpenFrame(FileName fileName, String userID, JTextArea textArea, JFrame mainFrame) {
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
+	public OpenFrame(FileName fileName, String userID, CodeTextPanel textArea, JFrame mainFrame, MainFrame mainFrame2) {
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int) screensize.getWidth();
 		int height = (int) screensize.getHeight();
@@ -49,14 +60,17 @@ public class OpenFrame {
 		this.fileName = fileName;
 		this.userID = userID;
 		this.mainFrame = mainFrame;
+		this.mainFrame2 = mainFrame2;
 		frame = new JFrame("Open");
 		frame.setLayout(new BorderLayout());
 		Box box = new Box(BoxLayout.Y_AXIS);
 		//
+		JPanel panel0 = new JPanel();
 		JLabel promoteLabel = new JLabel("请选择您要读取的文件");
 		promoteLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		promoteLabel.setLocation(frame.getWidth() + 10, frame.getHeight() + 20);
 		promoteLabel.setForeground(Color.blue);
+		panel0.add(promoteLabel);
 		// 设置JList
 		ArrayList<String> fileListNames = new ArrayList<String>();
 		try {
@@ -94,9 +108,11 @@ public class OpenFrame {
 		tBorder1.setTitleColor(Color.blue);
 		backgroundPanel.setBorder(tBorder1);
 		//
+		JPanel panel2 = new JPanel();
 		warningLabel = new JLabel("");
 		warningLabel.setForeground(Color.RED);
 		warningLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		panel2.add(warningLabel);
 		//
 		JPanel panel1 = new JPanel();
 		JButton createButton = new JButton("读取");
@@ -106,20 +122,24 @@ public class OpenFrame {
 		panel1.add(createButton);
 		panel1.add(cancelButton);
 		//
-		box.add(promoteLabel);
+		box.add(panel0);
 		box.add(scrollPane);
-		box.add(warningLabel);
+		box.add(panel2);
 		box.add(panel1);
 		//
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel);
-		frame.setSize(300, 200);
-		frame.pack();
+		frame.setSize(300, 240);
 		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
 		promoteLabel.setLocation(frame.getWidth() + 10, frame.getHeight() + 20);
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override
@@ -128,31 +148,42 @@ public class OpenFrame {
 		}
 	}
 
+	/**
+	 * 读取按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class LoadListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String fileName = fileList.getSelectedValue();
-			if (fileName == null) {
-				warningLabel.setText("请选择要读取的文件");
-				return;
+			if (mainFrame2.getSaveFlag()
+					|| JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				String fileName = fileList.getSelectedValue();
+				if (fileName == null) {
+					warningLabel.setText("请选择要读取的文件");
+					return;
+				}
+				String code = "";
+				try {
+					IOService ioService = RemoteHelper.getInstance().getIOService();
+					ioService.setReadFileMethod(new ReadFileInNewestVersion());
+					code = ioService.readFile(userID, fileName);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				OpenFrame.this.fileName.setFileName(fileName);
+				if (code.split("_").length == 2) {
+					textArea.setText(code.split("_")[1]);
+				}
+				textArea.setEditable(true);
+				textArea.setBackground(Color.WHITE);
+				mainFrame.setTitle("BF Client--" + fileName + "-" + code.split("_")[0]);
+				mainFrame2.setMenuEnable();
+				mainFrame2.changeSaveFlag();
+				frame.dispose();
 			}
-			String code = "";
-			try {
-				IOService ioService = RemoteHelper.getInstance().getIOService();
-				ioService.setReadFileMethod(new ReadFileInNewestVersion());
-				code = ioService.readFile(userID, fileName);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			OpenFrame.this.fileName.setFileName(fileName);
-			if(code.split("_").length==2){
-			textArea.setText(code.split("_")[1]);
-			}
-			textArea.setEditable(true);
-			textArea.setBackground(Color.WHITE);
-			mainFrame.setTitle("BF Client--" + fileName+"-"+code.split("_")[0]);
-			frame.dispose();
 		}
 	}
 }

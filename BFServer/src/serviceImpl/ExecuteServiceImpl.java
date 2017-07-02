@@ -4,28 +4,20 @@ package serviceImpl;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+import compiler.MemoryCell;
 import service.ExecuteService;
 import service.UserService;
-import serviceToolKit.MemoryCell;
-
+/**
+ * 执行代码的接口的实例
+ * 
+ * @author SilverNarcissus
+ */
 public class ExecuteServiceImpl implements ExecuteService {
-	public static void main(String[] args) {
-		ExecuteServiceImpl executeServiceImpl = new ExecuteServiceImpl();
-		try {
-			String result=executeServiceImpl.execute(",>,,>++++++++[<------<------>>-]<<[>[>+>+<<-]>>[<<+>>-]<<<-]>>>++++++[<++++++++>-]<.", "2*4");
-//			String result=executeServiceImpl.execute(
-//					"++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<++++++++++++ +++.>.+++.------.--------.>+.>.",
-//					"");
-			System.out.println(result);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	ArrayList<MemoryCell> memorycells;
 
 	/**
-	 * 请实现该方法
+	 * 执行代码的方法
 	 */
 	@Override
 	public String execute(String code, String param) throws RemoteException {

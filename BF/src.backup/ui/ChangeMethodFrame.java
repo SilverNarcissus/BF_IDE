@@ -14,24 +14,21 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import rmi.RemoteHelper;
-import ui.NewMethodFrame.CancelListener;
-import ui.NewMethodFrame.SaveListener;
 
+/**
+ * 用于更改方法设定的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class ChangeMethodFrame {
 	private String userName;
 	private JComboBox<String> methodName;
@@ -84,23 +81,25 @@ public class ChangeMethodFrame {
 		panel2.add(scrollPane);
 		//
 		JPanel panel3 = new JPanel();
-		JButton changeButton = new JButton("Change");
+		JButton changeButton = new JButton("修改");
 		changeButton.addActionListener(new ChangeListener());
-		JButton removeButton = new JButton("Delete");
+		JButton removeButton = new JButton("删除");
 		removeButton.addActionListener(new RemoveListener());
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton("取消");
 		cancelButton.addActionListener(new CancelListener());
 		panel3.add(changeButton);
 		panel3.add(removeButton);
 		panel3.add(cancelButton);
 		//
+		JPanel panel4 = new JPanel();
 		warningLabel = new JLabel("");
 		warningLabel.setForeground(Color.red);
+		panel4.add(warningLabel);
 		//
 		Box box = new Box(BoxLayout.Y_AXIS);
 		box.add(panel1);
 		box.add(panel2);
-		box.add(warningLabel);
+		box.add(panel4);
 		box.add(panel3);
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel, BorderLayout.CENTER);
@@ -109,7 +108,11 @@ public class ChangeMethodFrame {
 		frame.setVisible(true);
 
 	}
-
+	/**
+	 * 更改按钮监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class ChangeListener implements ActionListener {
 
 		@Override
@@ -124,14 +127,18 @@ public class ChangeMethodFrame {
 				RemoteHelper.getInstance().getUserService().removeUserMethodMap(userName, name);
 				RemoteHelper.getInstance().getUserService().putUserMethodMap(userName, name, codeArea.getText());
 				warningLabel.setForeground(Color.BLUE);
-				warningLabel.setText("Success");
+				warningLabel.setText("修改成功");
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			replaceJComboBox();
 		}
 	}
-
+	/**
+	 * 删除按钮监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class RemoveListener implements ActionListener {
 
 		@Override
@@ -145,14 +152,18 @@ public class ChangeMethodFrame {
 				//
 				RemoteHelper.getInstance().getUserService().removeUserMethodMap(userName, name);
 				warningLabel.setForeground(Color.BLUE);
-				warningLabel.setText("Success");		
+				warningLabel.setText("删除成功");		
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			replaceJComboBox();
 		}
 	}
-
+	/**
+	 * 取消按钮监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override
@@ -160,7 +171,11 @@ public class ChangeMethodFrame {
 			frame.dispose();
 		}
 	}
-
+	/**
+	 * 方法名选取改变监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class ComboItemListener implements ItemListener {
 
 		@Override
@@ -176,6 +191,11 @@ public class ChangeMethodFrame {
 			}
 		}
 	}
+	/**
+	 * 替换方法列表的方法
+	 * 
+	 * @author SilverNarcissus
+	 */
 	private void replaceJComboBox(){
 		methodName.removeAllItems();
 		try {

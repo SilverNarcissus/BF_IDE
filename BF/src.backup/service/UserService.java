@@ -4,7 +4,11 @@ package service;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Map;
-
+/**
+ * 登录登出所用的接口
+ * 
+ * @author SilverNarcissus
+ */
 public interface UserService extends Remote {
 	public boolean creatNewUser(String username, String password) throws RemoteException;
 

@@ -4,16 +4,20 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Map;
 
+import ioMethod.ReadFileListMethod;
+import ioMethod.ReadFileMethod;
+import ioMethod.WriteFileMethod;
 import service.ExecuteService;
 import service.IOService;
 import service.UserService;
 import serviceImpl.ExecuteServiceImpl;
 import serviceImpl.IOServiceImpl;
 import serviceImpl.UserServiceImpl;
-import serviceToolKit.ReadFileListMethod;
-import serviceToolKit.ReadFileMethod;
-import serviceToolKit.WriteFileMethod;
-
+/**
+ * RMI服务器端存根类
+ * 
+ * @author SilverNarcissus
+ */
 public class DataRemoteObject extends UnicastRemoteObject implements IOService, UserService, ExecuteService {
 	/**
 	 * 

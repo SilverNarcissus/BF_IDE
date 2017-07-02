@@ -1,13 +1,18 @@
 //需要客户端的Stub
 package service;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import serviceToolKit.ReadFileListMethod;
-import serviceToolKit.ReadFileMethod;
-import serviceToolKit.WriteFileMethod;
-
+import ioMethod.ReadFileListMethod;
+import ioMethod.ReadFileMethod;
+import ioMethod.WriteFileMethod;
+/**
+ * 执行IO任务的接口
+ * 
+ * @author SilverNarcissus
+ */
 public interface IOService extends Remote {
 	public boolean writeFile(String file, String userId, String fileName) throws RemoteException;
 

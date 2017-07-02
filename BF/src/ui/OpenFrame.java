@@ -24,12 +24,17 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import fileHelper.FileName;
+import ioMethod.ReadFileInNewestVersion;
+import ioMethod.ReadFileListInOnlyFileName;
 import rmi.RemoteHelper;
 import service.IOService;
-import serviceToolKit.ReadFileInNewestVersion;
-import serviceToolKit.ReadFileListInOnlyFileName;
-import toolKit.FileName;
 
+/**
+ * 打开文件的方法
+ * 
+ * @author SilverNarcissus
+ */
 public class OpenFrame {
 	private FileName fileName;
 	private String userID;
@@ -40,6 +45,11 @@ public class OpenFrame {
 	private JFrame mainFrame;
 	private MainFrame mainFrame2;
 
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
 	public OpenFrame(FileName fileName, String userID, CodeTextPanel textArea, JFrame mainFrame, MainFrame mainFrame2) {
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int) screensize.getWidth();
@@ -125,6 +135,11 @@ public class OpenFrame {
 		promoteLabel.setLocation(frame.getWidth() + 10, frame.getHeight() + 20);
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override
@@ -133,12 +148,18 @@ public class OpenFrame {
 		}
 	}
 
+	/**
+	 * 读取按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class LoadListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (mainFrame2.getSaveFlag()||JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
-					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			if (mainFrame2.getSaveFlag()
+					|| JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				String fileName = fileList.getSelectedValue();
 				if (fileName == null) {
 					warningLabel.setText("请选择要读取的文件");

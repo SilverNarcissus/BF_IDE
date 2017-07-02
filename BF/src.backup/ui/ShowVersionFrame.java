@@ -16,29 +16,42 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import fileHelper.FileName;
+import ioMethod.ReadFileListShowingVersion;
+import ioMethod.ReadFileWithUserIDAndFileName;
 import rmi.RemoteHelper;
 import service.IOService;
-import serviceToolKit.ReadFileListShowingVersion;
-import serviceToolKit.ReadFileWithUserIDAndFileName;
-import toolKit.FileName;
 
+/**
+ * 展示版本的面板
+ * 
+ * @author SilverNarcissus
+ */
 public class ShowVersionFrame {
 	private FileName fileName;
 	private String userID;
 	private JList<String> fileList;
 	private JLabel warningLabel;
 	private JFrame frame;
-	private JTextArea textArea;
+	private CodeTextPanel textArea;
 	private JFrame mainFrame;
+	private MainFrame mainFrame2;
 
-	public ShowVersionFrame(FileName fileName, String userID, JTextArea textArea, JFrame mainFrame) {
+	/**
+	 * 构建UI面板
+	 * 
+	 * @author SilverNarcissus
+	 */
+	public ShowVersionFrame(FileName fileName, String userID, CodeTextPanel textArea, JFrame mainFrame,
+			MainFrame mainFrame2) {
+		this.mainFrame2 = mainFrame2;
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = (int) screensize.getWidth();
 		int height = (int) screensize.getHeight();
@@ -52,10 +65,12 @@ public class ShowVersionFrame {
 		frame.setLayout(new BorderLayout());
 		Box box = new Box(BoxLayout.Y_AXIS);
 		//
+		JPanel panel0 = new JPanel();
 		JLabel promoteLabel = new JLabel("请选择您要读取的版本");
 		promoteLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		promoteLabel.setLocation(frame.getWidth() + 10, frame.getHeight() + 20);
 		promoteLabel.setForeground(Color.blue);
+		panel0.add(promoteLabel);
 		//
 		JPanel panel1 = new JPanel();
 		JButton createButton = new JButton("读取");
@@ -101,25 +116,31 @@ public class ShowVersionFrame {
 		tBorder1.setTitleColor(Color.blue);
 		backgroundPanel.setBorder(tBorder1);
 		//
+		JPanel panel2 = new JPanel();
 		warningLabel = new JLabel("");
 		warningLabel.setForeground(Color.RED);
 		warningLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		panel2.add(warningLabel);
 		//
 		//
-		box.add(promoteLabel);
+		box.add(panel0);
 		box.add(scrollPane);
-		box.add(warningLabel);
+		box.add(panel2);
 		box.add(panel1);
 		//
 		backgroundPanel.add(box);
 		frame.add(backgroundPanel);
-		frame.setSize(300, 200);
-		frame.pack();
+		frame.setSize(300, 220);
 		frame.setLocation(width / 2 - frame.getWidth() / 2, height / 2 - frame.getHeight() / 2 - 50);
 		frame.setVisible(true);
 		promoteLabel.setLocation(frame.getWidth() + 10, frame.getHeight() + 20);
 	}
 
+	/**
+	 * 取消按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class CancelListener implements ActionListener {
 
 		@Override
@@ -128,29 +149,39 @@ public class ShowVersionFrame {
 		}
 	}
 
+	/**
+	 * 读取按钮的监听
+	 * 
+	 * @author SilverNarcissus
+	 */
 	class LoadListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String fileName = fileList.getSelectedValue();
-			System.out.println(fileName);
-			if (fileName == null || fileName == "<空>") {
-				warningLabel.setText("请选择要读取的版本");
-				return;
+			if (mainFrame2.getSaveFlag()
+					|| JOptionPane.showConfirmDialog(frame, "You will lose all unsaved file, go ahead?", "Prompt",
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				String fileName = fileList.getSelectedValue();
+				System.out.println(fileName);
+				if (fileName == null || fileName == "<空>") {
+					warningLabel.setText("请选择要读取的版本");
+					return;
+				}
+				String code = "";
+				try {
+					IOService ioService = RemoteHelper.getInstance().getIOService();
+					ioService.setReadFileMethod(new ReadFileWithUserIDAndFileName());
+					code = ioService.readFile(userID, ShowVersionFrame.this.fileName.getFileName() + "_" + fileName);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				textArea.setText(code);
+				textArea.setEditable(true);
+				mainFrame.setTitle(
+						"BF Client--" + ShowVersionFrame.this.fileName.getFileName() + "-" + fileName.split("_")[0]);
+				mainFrame2.changeSaveFlag();
+				frame.dispose();
 			}
-			String code = "";
-			try {
-				IOService ioService = RemoteHelper.getInstance().getIOService();
-				ioService.setReadFileMethod(new ReadFileWithUserIDAndFileName());
-				code = ioService.readFile(userID, ShowVersionFrame.this.fileName.getFileName() + "_" + fileName);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			textArea.setText(code);
-			textArea.setEditable(true);
-			mainFrame.setTitle(
-					"BF Client--" + ShowVersionFrame.this.fileName.getFileName() + "-" + fileName.split("_")[0]);
-			frame.dispose();
 		}
 	}
 }
